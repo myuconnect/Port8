@@ -1,0 +1,98 @@
+{
+	"Version" : "1.0",
+	"Main": {
+		"Key"  : "mne@N#$!jefl%(~*&fsa",
+		"Modules" : {
+			"DB" : {
+				"REPOSITORY" : {
+					"DEV": {
+						"Vendor" : "mysql",
+						"Name" : "p8rep",
+						"Host" : "127.0.0.1",
+						"Port" : 3306,
+						"User" : "root",
+						"key"  : "mne@N#$!jefl%(~*&fsa",
+						"enc" : "w5_DncOUwrQ=",
+						"Time_Zone" : "UTC",
+						"ssl" : {"ssl_ca" : "certificate_authority_file", "ssl_cert" : "SSL certificate file", "ssl_key" : "File containint ssl key"},
+						"db_uri" : "",
+						"pool_name" : "mysql_pool",
+						"pool_size" : "",
+						"pool_reset_session" : true
+					}
+				},
+				"Oracle" : "",
+				"Mongo" : "",
+				"MySql" : "",
+				"MSSql" : ""
+			},
+			"Scheduler" : {"Missing":"Config"},
+			"Logging" : {
+						    "version": 1,
+						    "disable_existing_loggers": false,
+						    "formatters": {
+						        "simple": {"format": "%(asctime)s - [%(name)s:%(funcName)s]  %(levelname)s : %(message)s" },
+						        "debugFormat": {"format": "%(asctime)s - [%(name)s:%(funcName)s:%(lineno)d]  %(levelname)s : %(message)s" }
+
+						    },
+
+						    "handlers": {
+						        "console": {
+						            "class": "logging.StreamHandler",
+						            "formatter": "simple",
+						            "stream": "ext://sys.stdout"
+						        },
+						        "file": {
+						            "class": "logging.handlers.RotatingFileHandler",
+						            "formatter": "simple",
+						            "filename": "port8Server.log ",
+						            "maxBytes": 1485760,
+						            "backupCount":5,
+						            "encoding": "utf8"
+						        }       
+						    },
+						    "loggers": {
+						        "Console": {
+						            "level": "DEBUG",
+						            "handlers": ["console","file"],
+						            "propagate": "no"
+						        },
+						        "Port8Rest": {
+						            "level": "DEBUG",
+						            "handlers": ["file"],
+						            "propagate": "no"
+						        },
+						        "Port8Daemon": {
+						            "level": "DEBUG",
+						            "handlers": ["file"],
+						            "propagate": "no"
+						        },
+						        "apscheduler": {
+						            "level": "INFO",
+						            "handlers": ["file"],
+						            "propagate": "no"
+						        },
+						        "DB": {
+						            "level": "INFO",
+						            "handlers": ["file"],
+						            "propagate": "no"
+						        },
+						        "startup": {
+						            "level": "DEBUG",
+						            "handlers": ["file"],
+						            "propagate": "no"
+						        },                               
+						        "shutdown": {
+						            "level": "DEBUG",
+						            "handlers": ["file"],
+						            "propagate": "no"
+						        }                               
+						    }
+						},
+			"RestAPI" : {"Missing":"Config"},
+			"Daemon" : {"Missing":"Config"},
+			"JsonSchema" : {"ConfigFile":"schema.json"}
+		},			
+		"libraries" : ["jsonschema","apscheduler","cx_Oracle","jsonref","mysql.connector","pymongo"]
+	}
+}

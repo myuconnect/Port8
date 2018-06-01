@@ -1,0 +1,47 @@
+{
+    "BlockingConfig":
+        {
+            "apscheduler.jobstores.default": 
+                {
+                    "type": "sqlalchemy",
+                    "url": "sqlite:////home/anil/app/src/com/port8/config/sqlliteJob.db"
+                },
+            "apscheduler.executors.default": 
+                {
+                    "class": "apscheduler.executors.pool:ThreadPoolExecutor",
+                    "max_workers": "20"
+                },
+            "apscheduler.executors.processpool": 
+                {
+                    "type": "processpool",
+                    "max_workers": "5"
+                },
+            "apscheduler.job_defaults.coalesce": "false",
+            "apscheduler.job_defaults.max_instances": "1",
+            "apscheduler.job_defaults.daemonic":"false",
+            "apscheduler.timezone": "UTC"
+        },
+    "BackgroundConfig":
+        {
+            "apscheduler.jobstores.default": 
+                {
+                    "type": "sqlalchemy",
+                    "url": "sqlite:////home/anil/app/src/com/port8/config/sqlliteJob.db"
+                },
+            "apscheduler.executors.default": 
+                {
+                    "class": "apscheduler.executors.pool:ThreadPoolExecutor",
+                    "max_workers": "20"
+                },
+            "apscheduler.executors.processpool": 
+                {
+                    "type": "processpool",
+                    "max_workers": "5"
+                },
+            "apscheduler.job_defaults.coalesce": "false",
+            "apscheduler.job_defaults.max_instances": "1",
+            "apscheduler.job_defaults.daemonic":"true",
+            "apscheduler.timezone": "UTC"
+        },
+    "LogFile":"schedulerPort8.log"
+}

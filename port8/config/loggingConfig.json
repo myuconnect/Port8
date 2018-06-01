@@ -1,0 +1,62 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "simple": {"format": "%(asctime)s - [%(name)s:%(funcName)s]  %(levelname)s : %(message)s" },
+        "debugFormat": {"format": "%(asctime)s - [%(name)s:%(funcName)s:%(lineno)d]  %(levelname)s : %(message)s" }
+
+    },
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "stream": "ext://sys.stdout"
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "simple",
+            "filename": "port8Server.log ",
+            "maxBytes": 1485760,
+            "backupCount":5,
+            "encoding": "utf8"
+        }       
+    },
+    "loggers": {
+        "Console": {
+            "level": "DEBUG",
+            "handlers": ["console","file"],
+            "propagate": "no"
+        },
+        "Port8Rest": {
+            "level": "DEBUG",
+            "handlers": ["file"],
+            "propagate": "no"
+        },
+        "Port8Daemon": {
+            "level": "DEBUG",
+            "handlers": ["file"],
+            "propagate": "no"
+        },
+        "apscheduler": {
+            "level": "INFO",
+            "handlers": ["file"],
+            "propagate": "no"
+        },
+        "DB": {
+            "level": "INFO",
+            "handlers": ["file"],
+            "propagate": "no"
+        },
+        "startup": {
+            "level": "DEBUG",
+            "handlers": ["file"],
+            "propagate": "no"
+        },                               
+        "shutdown": {
+            "level": "DEBUG",
+            "handlers": ["file"],
+            "propagate": "no"
+        }                               
+    }
+}

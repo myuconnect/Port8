@@ -1,0 +1,260 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id":"Main",
+    "Main": {
+        "UNITS" : ["minutes", "hours", "days", "weeks"],
+        "interval_schema" : {
+            "type": "object",
+            "title": "Simple Interval",
+            "properties": {
+                "minutes":  {"type": "number"},
+                "hours":    {"type": "number"},
+                "days":     {"type": "number"},
+                "weeks":    {"type": "number"}
+            },
+            "maxProperties": 1, 
+            "__error_maxProperties": "Interval must be specified as one of %s",
+            "additionalProperties": false
+        },
+        "cron_schema" : {
+            "type": "object",
+            "title": "Advanced Cron Interval",
+            "properties": {
+                "year": {
+                    "type": ["integer", "string"],
+                    "title": "4 digit year, use * for every year"
+                },
+                "month": {
+                    "type": ["integer", "string"],
+                    "title": "month (1-12), use * for every month. e.g. 1-5, 6-12"
+                },
+                "day": {
+                    "type": ["integer", "string"],
+                    "title": "day 1-31"
+                },
+                "week": {
+                    "type": ["integer", "string"],
+                    "title": "ISO week 1-53"
+                },
+                "day_of_week": {
+                    "type": ["integer", "string"],
+                    "title": "number of name of week day (0-6, mon,tue,wed,thu,fri,sat,sun"                            
+                },
+                "hour": {
+                    "type": ["integer", "string"],
+                    "title": "hour 0-23, use * for every hour"
+                },
+                "minute": {
+                    "type": ["integer", "string"],
+                    "title": "minute 0-59, use * for every minute"
+                },
+                "start_date": {
+                    "type": "string",
+                    "title": "earliest possible date/time to trigger on (inclusive)"
+                },
+                "end_date":{
+                    "type": "string",
+                    "title": "latest possible date/time to trigger on (inclusive)"
+                },
+                "timezone": {
+                    "type": "string",
+                    "title": "time zone to use for the date/time calculations (defaults to scheduler timezone)"
+                }
+            },
+            "additionalProperties": false
+        },
+        "schedule_schema" : {
+            "type": "object",
+            "title": "Schedule",
+            "description": "A schedule which runs specified tasks periodically.",
+            "properties":{
+                "func_call":{"$ref": "#Main/sched_dyna_call"},
+                "coalesce" : {"type":"boolean"},
+                "schedule": {"$ref" : "#Main/cron_schema"}
+            },
+            "required":     ["func_call","schedule"],
+            "minProperties": 2,
+            "maxProperties": 6,
+            "errorProperties": "scheduler schema must have {module, cls, method,arguments and scheduler}",
+            "additionalProperties": false
+        },
+        "sched_dyna_call": {
+            "type": "object",
+            "title": "Dynamic Call",
+            "description": "Arguments required for dynamic method calling from Scheduler",
+            "properties":{
+                "module":   {"type": "string"},
+                "cls" :     {"type":"string"},
+                "method":   {"type":"string"},
+                "clsArg" : {"type":"array", "optional" : true},
+                "methodArgType": {"type" : "string", "optional" : true, "enum": ["keyword","argument"] },
+                "arguments": {"type":"object", "optional" : true }
+            },
+            "required":     ["module","cls","method"],
+            "minProperties": 3,
+            "maxProperties": 6,
+            "errorProperties": "dyanmic calling must have module/cls/method/arguments(optional) arguments",
+            "additionalProperties": false
+        },
+        "process_job_schema" : {
+            "type": "object",
+            "title": "Process Job",
+            "description": "Arguments required to process job.",
+            "properties":{
+                "func_call": {"$ref" : "#Main/sched_dyna_call"},
+                "jobid" : {"type":"string"}
+            },
+            "required":     ["jobid"],
+            "minProperties": 2,
+            "maxProperties": 2,
+            "errorProperties": "process job must have func_call and jobid",
+            "additionalProperties": false
+        },
+        "template":{
+            "reponse_schema":{
+                "type":"object",
+                "title":"Response Schema",
+                "description":"Response schema",
+                "properties": {
+                    "status": {"type":"string"},
+                    "message" : {"type":"string"},
+                    "data" : {"type":"string"}
+                },
+            "required":     ["status","message"],
+            "minProperties": 2,
+            "maxProperties": 2,
+            "errorProperties": "response template must have status and message element",
+            "additionalProperties": false
+            }
+        },
+        "queue" : {
+            "persist" : {
+                "db_path": "/home/anil/app/data/",
+                "multithreading":true,
+                "workers":3
+            },
+            "memory" : {
+                "queue_type":"fifo"
+            }
+        },
+        "agent_config" : {
+            "master" : {
+                "port": 8100,
+                "poll_interval_secs" : 10,
+                "workers" : 3
+            },
+            "slave" : {
+                "default_port":"8101"
+            }
+        },
+        "db_schema" : {
+            "MySql" : {
+                "db_dyna_sql_call" : {
+                    "type" : "object",
+                    "title" : "DB Dynamic Sql Call",
+                    "description" : "Dynamic sql calling from DB",
+                    "properties" : {
+                        "operation" : {"type" : "string", "enum": ["create","change","remove","fetch"] },
+                        "sql_text"  : {"type" : "string"}
+                    },
+                    "required":     ["operation","sql_text"],
+                    "minProperties": 2,
+                    "maxProperties": 2,
+                    "errorProperties": "db: Invalid argument for dynamic sql call",
+                    "additionalProperties": false
+                },                
+                "container" : {
+                    "type" : "object",
+                    "title" : "Container",
+                    "description" : "Container/table name to persist or get the data from",
+                    "properties" : {
+                        "container" : {"type" : "string"}
+                    },
+                    "required":     ["container"],
+                    "minProperties": 1,
+                    "maxProperties": 1,
+                    "errorProperties": "db: Invalid container argument, container must be type of string ",
+                    "additionalProperties": false
+                },                    
+                "operation" : {
+                    "type" : "object",
+                    "title" : "Create Arguments",
+                    "description" : "Create data arguments",
+                    "properties" : {
+                        "operation" : {"type" : "string", "enum": ["create","change","remove","fetch"] }
+                    },
+                    "required":     ["operation"],
+                    "minProperties": 1,
+                    "maxProperties": 1,
+                    "errorProperties": "db: operation must be in ",
+                    "additionalProperties": false                    
+                },
+                "fetch" : { 
+                    "type" : "object",
+                    "title" : "Fetch Arguments",
+                    "description" : "fetch data arguments",
+                    "properties" : {
+                        "operation" : {"type" : "string", "enum": ["create","change","remove","fetch"] },
+                        "container" : {"type" : "string"},
+                        "contents" : {"type" : "array"},
+                        "criteria" : {"type" : "string", "optional" : true }
+                    },
+                    "required":     ["operation","container","contents"],
+                    "minProperties": 3,
+                    "maxProperties": 4,
+                    "errorProperties": "db: fetch method method must have operation, container, contents and criteria (optional, default True)",
+                    "additionalProperties": false
+                },                
+                "create" : { 
+                    "type" : "object",
+                    "title" : "Create Data arguments",
+                    "description" : "Create Arguments",
+                    "properties" : {
+                        "operation" : {"type" : "string", "enum": ["create","change","remove","fetch"] },
+                        "container" : {"type" : "string"},
+                        "dataDict" : {"type" :"object"},
+                        "commitWork" : {"type" : "boolean", "optional" : true }
+                    },
+                    "required":     ["operation","container","dataDict"],
+                    "minProperties": 3,
+                    "maxProperties": 4,
+                    "errorProperties": "db: create data argument must have operation, container, dataDict and commitWork (optional, default True)",
+                    "additionalProperties": false
+                },
+                "change" : { 
+                    "type" : "object",
+                    "title" : "Change Arguments",
+                    "description" : "Change data arguments",
+                    "properties" : {
+                        "operation" : {"type" : "string", "enum": ["create","change","remove","fetch"] },
+                        "container" : {"type" : "string"},
+                        "criteria" : {"type" : "string"},
+                        "dataDict" : {"type" :"object"},
+                        "commitWork" : {"type" : "boolean", "optional" : true  }
+                    },
+                    "required":     ["operation","container","criteria","dataDict"],
+                    "minProperties": 3,
+                    "maxProperties": 5,
+                    "errorProperties": "db: change data argument must have operation, container, criteria, dataDict and commitWork (optional, default True)",
+                    "additionalProperties": false
+                },
+                "remove" : { 
+                    "type" : "object",
+                    "title" : "Remove Arguments",
+                    "description" : "Remove data arguments",
+                    "properties" : {
+                        "operation" : {"type" : "string", "enum": ["create","change","remove","fetch"] },
+                        "container" : {"type" : "string"},
+                        "criteria" : {"type" :"string"},
+                        "commitWork" : {"type" : "boolean", "optional" : true  }
+                    },
+                    "required":     ["operation","container","criteria"],
+                    "minProperties": 3,
+                    "maxProperties": 4,
+                    "errorProperties": "db: remove data argument must have operation, container, criteria and commitWork (optional, default True)",
+                    "additionalProperties": false
+                }
+            }
+        }
+    }
+}

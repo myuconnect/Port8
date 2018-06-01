@@ -1,0 +1,13 @@
+{
+    "MySqlConfig":
+        {
+            "host":"localhost",
+            "user":"root",
+            "passwd":"root",
+            "db":"PORT8",
+            "autocommit":false,
+            "charset":"utf8",
+            "pool_name":"mysqlPool",
+            "pool_size":10
+        }
+}

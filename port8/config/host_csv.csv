@@ -1,0 +1,18 @@
+"host_id","host_name","location","dc_info","mac_address","processor","total_sockets","cores_per_socket","thread_per_core","total_cpus","phys_memory_mb","swap_memory_mb","network_interface","ip_addresses","os","os_version","os_release","commision_date","decommision_date","uptime_mins","last_scan_id","last_scan_seq_id","last_scan_time","last_scan_score"
+"H10001","dvlp801.port8.com",,"DENVER, CO",,"Intel Genuine Processor",5,2,1,10,10240,10240,,"10.5.8.20","LINUX-RHEL",6.1,,2016-01-01,9999-12-31,1000,"JOBSEC10001",1,2018-01-01 00:00:00,57.67
+"H10002","dvlp802.port8.com",,"DENVER, CO",,"Intel Genuine Processor",8,2,1,16,10240,10240,,"10.5.8.21","LINUX-RHEL",6.1,,2016-01-01,9999-12-31,1001,"JOBSEC10002",1,2018-01-01 00:00:00,72.13
+"H10015","dvlp803.port8.com",,"DENVER, CO",,"Intel Genuine Processor",10,2,1,20,10240,10240,,"10.5.8.22","LINUX-RHEL",6.1,,2016-01-01,9999-12-31,1002,"JOBSEC10003",1,2018-01-01 00:00:00,89
+"H10016","dvlp804.port8.com",,"DENVER, CO",,"Intel Genuine Processor",12,2,1,24,10240,10240,,"10.5.8.23","LINUX-RHEL",7.4,,2016-01-01,9999-12-31,1003,"JOBSEC10004",1,2018-01-01 00:00:00,90
+"H10017","dvlp805.port8.com",,"DENVER, CO",,"Intel Genuine Processor",8,2,1,16,10240,10240,,"10.5.8.24","LINUX-RHEL",7.4,,2016-01-01,9999-12-31,1004,"JOBSEC10005",1,2018-01-01 00:00:00,75
+"H10018","dvlp806.port8.com",,"CHARLOTTE, NC",,"Intel Genuine Processor",8,2,1,16,10240,10240,,"10.18.10.25","LINUX-RHEL",7.4,,2016-01-01,9999-12-31,1005,"JOBSEC10006",1,2018-01-01 00:00:00,91.13
+"H10026","dvlp807.port8.com",,"CHARLOTTE, NC",,"Intel Genuine Processor",8,2,2,32,10240,10240,,"10.18.10.26","LINUX-RHEL",7.4,,2016-01-01,9999-12-31,1006,"JOBSEC10007",1,2018-01-01 00:00:00,78
+"H10027","dvlp808.port8.com",,"CHARLOTTE, NC",,"Intel Genuine Processor",10,2,2,40,10240,10240,,"10.18.10.27","LINUX-RHEL",7.4,,2016-01-01,9999-12-31,1007,"JOBSEC10008",1,2018-01-01 00:00:00,70.2
+"H10030","dvlp809.port8.com",,"CHARLOTTE, NC",,"Intel Genuine Processor",10,2,2,40,10240,10240,,"10.18.10.28","LINUX-RHEL",7.4,,2016-01-01,9999-12-31,1008,"JOBSEC10009",1,2018-01-01 00:00:00,58.8
+"H10031","dvmsp8011.port8.com",,"CHARLOTTE, NC",,"Intel Genuine Processor",8,2,2,32,10240,10240,,"10.18.10.29","MS-WINDOWS",2018,,2016-01-01,9999-12-31,1009,"JOBSEC10010",1,2018-01-01 00:00:00,83.67
+"H10032","dvmsp8012.port8.com",,"CHARLOTTE, NC",,"Intel Genuine Processor",8,2,2,32,8192,8192,,"10.18.10.30","MS-WINDOWS",2018,,2016-01-01,9999-12-31,1010,"JOBSEC10011",1,2018-01-01 00:00:00,75.00
+"H10034","tvlp801.port8.com",,"CHARLOTTE, NC",,"Intel Genuine Processor",5,4,2,40,8192,8192,,"10.18.10.31","LINUX-OEL",6.1,,2016-01-01,9999-12-31,1011,"JOBSEC10012",1,2018-01-01 00:00:00,70.00
+"H10035","tvlp802.port8.com",,"CHARLOTTE, NC",,"Intel Genuine Processor",5,4,2,40,8192,8192,,"10.18.10.32","LINUX-OEL",6.1,,2016-01-01,9999-12-31,1012,"JOBSEC10013",1,2018-01-01 00:00:00,78.00
+"H10036","tvlp803.port8.com",,"DENVER, CO",,"Intel Genuine Processor",5,4,1,20,8192,8192,,"10.5.8.25","LINUX-OEL",6.1,,2016-01-01,9999-12-31,1013,"JOBSEC10014",1,2018-01-01 00:00:00,82.00
+"H10037","tvlp804.port8.com",,"DENVER, CO",,"Intel Genuine Processor",5,4,1,20,8192,8192,,"10.5.8.26","LINUX-OEL",6.1,,2016-01-01,9999-12-31,1014,"JOBSEC10015",1,2018-01-01 00:00:00,89.00
+"H10038","tvlp805.port8.com",,"DENVER, CO",,"Intel Genuine Processor",10,2,1,20,8192,8192,,"10.5.8.27","LINUX-OEL",6.1,,2016-01-01,9999-12-31,1015,"JOBSEC10016",1,2018-01-01 00:00:00,96.00
+"H10046","tvlp806.port8.com",,"DENVER, CO",,"Intel Genuine Processor",10,2,1,20,8192,8192,,"10.5.8.28","LINUX-OEL",6.1,,2016-01-01,9999-12-31,1016,"JOBSEC10017",1,2018-01-01 00:00:00,75.00
