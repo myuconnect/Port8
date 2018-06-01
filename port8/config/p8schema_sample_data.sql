@@ -19,7 +19,7 @@ IGNORE 1 LINES
 LOAD DATA LOCAL INFILE "/home/anil/app/port8/config/host_tenant_csv.csv" INTO TABLE p8rep.p$ht_tenant
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
-LINES TERMINATED BY '\n'
+LINES TERMINATED BY '\n' 
 IGNORE 1 LINES
 (tenant_id,host_id,tenant_type,tenant_name,tenant_vendor,vendor_prod_name,tenant_version,backup_policy_id,sec_policy_ver_id,start_date,end_date,last_scan_id,last_scan_seq_id,last_scan_time,last_scan_score)
 ;
