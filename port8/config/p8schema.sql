@@ -9,18 +9,18 @@ SET SQL_MODE = ('ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FO
 # User/Role access
 
 create table p$ui_page (
-    ui_page_id              VARCHAR(50)             NOT NULL PRIMARY KEY,
-    ui_page_name            VARCHAR(100)            NOT NULL,
-    ui_page_details         VARCHAR(200)            NOT NULL,
-    ui_page_status          ENUM('ACTIVE','INACTIVE')
+    page_id              VARCHAR(50)             NOT NULL PRIMARY KEY,
+    page_name            VARCHAR(100)            NOT NULL,
+    page_details         VARCHAR(200)            NOT NULL,
+    page_status          ENUM('ACTIVE','INACTIVE')
 );
 
-create table p$ui_page_action (
-    ui_page_action_id        VARCHAR(50)             NOT NULL PRIMARY KEY,
-    ui_page_id              VARCHAR(50)             NOT NULL,
-    ui_action_name          VARCHAR(100)            NOT NULL,
-    ui_action_details       VARCHAR(200)            NOT NULL,
-    ui_page_action_status   ENUM('ACTIVE','INACTIVE'),
+create table p$ui_action (
+    action_id               VARCHAR(50)             NOT NULL PRIMARY KEY,
+    page_id                 VARCHAR(50)             NOT NULL,
+    action_name             VARCHAR(100)            NOT NULL,
+    action_details          VARCHAR(200)            NOT NULL,
+    action_status           ENUM('ACTIVE','INACTIVE'),
     bpm_library             VARCHAR(100)            NOT NULL,
     bpm_class               VARCHAR(80)             NOT NULL,
     bpm_method              VARCHAR(100)            NOT NULL,
@@ -30,7 +30,7 @@ create table p$ui_page_action (
 );
 
 create table p$factory_call_info (
-    ui_page_action_id       VARCHAR(20)             PRIMARY KEY,
+    action_id               VARCHAR(20)             PRIMARY KEY,
     Description             VARCHAR(200)            NOT NULL,
     bpm_library             VARCHAR(100)            NOT NULL,
     bpm_class               VARCHAR(80)             NOT NULL,
@@ -43,38 +43,38 @@ create table p$factory_call_info (
 #alter table p$factory_call_info add constraint p$factory_call_info_pk (ui_page_action_id);
 
 create table p$ui_page_access (
-    ui_page_id              VARCHAR(50)             NOT NULL,
+    page_id                 VARCHAR(50)             NOT NULL,
     user_role_id            VARCHAR(20)             NOT NULL,
     access_type             ENUM('READ ONLY','ALL')
 );
 
-alter table p$ui_page_access add constraint p$ui_page_access_pk primary key(ui_page_id, user_role_id);
+alter table p$ui_page_access add constraint p$ui_page_access_pk primary key(page_id, user_role_id);
 
 create table p$ui_page_access_excl (
-    ui_page_id              VARCHAR(50)             NOT NULL,
+    page_id                 VARCHAR(50)             NOT NULL,
     user_role_id            VARCHAR(20)             NOT NULL,
     access_type             ENUM('READ ONLY','ALL')
 );
 
-alter table p$ui_page_access_excl add constraint p$ui_page_access_pk primary key(ui_page_id, user_role_id);
+alter table p$ui_page_access_excl add constraint p$ui_page_access_pk primary key(page_id, user_role_id);
 
 create table p$ui_page_action_access (
-    ui_page_action_id       VARCHAR(50)             NOT NULL,
-    ui_page_id              VARCHAR(50)             NOT NULL,
+    action_id               VARCHAR(50)             NOT NULL,
+    page_id                 VARCHAR(50)             NOT NULL,
     user_role_id            VARCHAR(20)             NOT NULL,
     access_type             ENUM('READ ONLY','ALL')
 );
 
-alter table p$ui_page_action_access add constraint p$ui_page_action_access_pk primary key(ui_page_action_id, user_role_id);
+alter table p$ui_page_action_access add constraint p$ui_page_action_access_pk primary key(action_id, user_role_id);
 
 
 create table p$ui_page_action_access_excl (
-    ui_page_action_id       VARCHAR(50)             NOT NULL,
+    action_id               VARCHAR(50)             NOT NULL,
     user_role_id            VARCHAR(20)             NOT NULL,
     access_type             ENUM('READ ONLY','ALL')
 );
 
-alter table p$ui_page_action_access_excl add constraint p$ui_page_access_pk primary key(ui_page_action_id , user_role_id);
+alter table p$ui_page_action_access_excl add constraint p$ui_page_access_pk primary key(action_id , user_role_id);
 
 
 # Security Policy

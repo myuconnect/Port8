@@ -20,6 +20,10 @@ class Global(object, metaclass=Singleton):
         self.DefPrefix4Error = '  >'
         self.DefPrefixCount = 3
 
+        #Rest
+        self.InternalRequest='I'
+        self.ExternalRequest='E'
+        self.RequestStatus={'Status' : '', 'Message' : ''}
         #db'
         '''
         self.DBRequiredArg = \
@@ -70,16 +74,18 @@ class Global(object, metaclass=Singleton):
         #template
         self.Template = \
             {
-                "Response":{'Status':'','Data':{},'Message':''},
+                "Response":{'Status':'','Message': '', 'Data':{}},
+                "Request" : {"Page":"","Action" : "","Arguments" : {}  , "Security":{} },
                 "DBResponse" : {"Status" : '', "Rows" : 0, "Message" : "", "Data" : "" },
                 "ArgValResult" : {"Status" : '', "Message" : '', "Arguments" : {}, "MissingArg" : []},
-                "ScanSummaryData" : {
+                "LandingPage" : {
                     "AvgScore" : 0, 
-                    "LocAvgScore" : [], 
-                    "HostScore" : [], 
-                    "HostTenantScore" : [], 
-                    "TenantScore" : {}, 
-                    "LocTenAvgScore" : {}}
+                    "Location" : [],
+                    "Vendor" : [],
+                    "LocVendor" : [], 
+                    "LocHost" : [],
+                    "LocHostTenant" : []
+                }                   
             }
         self.ResponseTemplate = 'Response'
         self.Success = 'Success'
@@ -98,6 +104,15 @@ class Global(object, metaclass=Singleton):
         self.keyPosANYWHERE = 'ANYWHERE'
 
         ## MYSQL Sql
+
+        ## Factory Call
+        self.buildFactoryDataSql = \
+            'select page.page_id "PAGE_ID", page.page_name "PAGE_NAME", page.page_status "PAGE_STATUS", \
+                action.action_id "ACTION_ID", action.action_name "ACTION_NAME", action.action_status "ACTION_STATUS", action.bpm_status "BPM_STATUS", action.bpm_call_json "BPM_CALL_JSON"\
+            from p$ui_page page, p$ui_action action  \
+            where page.page_id = action.page_id \
+            order by action.page_id, action.action_id'
+        ##
         self.avgScoreSql = 'select avg(last_scan_score) "AVG_SCORE" \
             from p$ht_info '
 
@@ -105,17 +120,23 @@ class Global(object, metaclass=Singleton):
             from p$ht_info \
             group by dc_info '
 
-        self.hostScoreSql = 'select host_name "HOST", dc_info "LOCATION", last_scan_score "AVG_SCORE", last_scan_id "LAST_SCAN", last_scan_time "LAST_SCAN_TIME" \
+        self.getAllHostScoreSql = 'select host_name "HOST", dc_info "LOCATION", last_scan_score "AVG_SCORE", last_scan_id "LAST_SCAN", last_scan_time "LAST_SCAN_TIME" \
             from p$ht_info '
+
+        self.getAHostScoreSql = 'select host_name "HOST", dc_info "LOCATION", last_scan_score "AVG_SCORE", last_scan_id "LAST_SCAN", last_scan_time "LAST_SCAN_TIME" \
+            from p$ht_info \
+            where host_id = %(HostId)s'
 
         self.vendorProdAvgScoreSql = 'select tenant_vendor "VENDOR", vendor_prod_name "PRODUCT", avg(last_scan_score) "AVG_SCORE" \
             from p$ht_tenant \
             group by tenant_vendor, vendor_prod_name \
             order by tenant_vendor, vendor_prod_name'
 
-        self.hostTenantScoreSql = 'select host_name "HOST", tenant_type "TENANT_TYPE", tenant_name "TENANT_NAME", last_scan_score "AVG_SCORE", last_scan_id "LAST_SCAN", last_scan_time "LAST_ScAN_TIME" \
-            from p$ht_tenant \
-            order by host_name,tenant_type, tenant_name '
+        self.hostTenantScoreSql = 'select host.host_name "HOST", tenant.tenant_type "TENANT_TYPE", tenant.tenant_name "TENANT_NAME", tenant.last_scan_score "LAST_SCORE", tenant.last_scan_id "LAST_SCAN", tenant.last_scan_time "LAST_ScAN_TIME", \
+            tenant.tenant_type "TYPE", tenant.tenant_vendor "VENDOR", tenant.vendor_prod_name "PRODUCT", tenant.tenant_version "VERSION" \
+            from p$ht_tenant tenant, p$ht_info host \
+            where tenant.host_id = host.host_id \
+            order by host.host_name, tenant.tenant_type, tenant.tenant_name '
 
         self.locVendorAvgScoreSql = 'select host.dc_info "LOCATION", tenant.tenant_vendor "VENDOR", tenant.vendor_prod_name "PRODUCT", avg(tenant.last_scan_score) "AVG_SCORE" \
             from p$ht_tenant tenant, p$ht_info host \
@@ -126,6 +147,8 @@ class Global(object, metaclass=Singleton):
         self.getLastTenantScanSql = 'select last_scan_id "SCAN_ID", last_scan_seq_id "SEQ_ID" from p$ht_tenant where tenant_id = %(TenantId)s'
         self.getTenantScanSummarySql = 'select * from p$ht_tenant_scan where tenant_id = %(TenantId)s and scan_id = %(ScanId)s and scan_seq_id = %(ScanSeqId)s'
         self.getTenantScanDetailSql = 'select * from p$ht_tenant_scan_detail where tenant_id = %(TenantId)s and scan_id = %(ScanId)s and scan_seq_id = %(ScanSeqId)s'
+
+        
 
         self.allTenantAvgScore4HostSql = 'select tenant_vendor "VENDOR", vendor_prod_name "PRODUCT", avg(last_scan_score) "AVG_SCORE" \
             from p$ht_tenant \

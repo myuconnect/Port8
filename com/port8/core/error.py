@@ -10,7 +10,7 @@ class ErrorUtil(object):
             myErrorMessage, myTraceBack = sys.exc_info()[1:],traceback.format_exc(limit=2)            
             self.logger.error(myErrorMessage)
 
-class error(Exception, metaclass=Singleton):
+class Error(Exception, metaclass=Singleton):
 
     def __init__(self,errorMsgArg = None, loggerArg = None):
         #print('in Error start')
@@ -32,79 +32,79 @@ class error(Exception, metaclass=Singleton):
         #return repr(exc_value)
 
 
-class InvalidArguments(error, metaclass=Singleton):
+class InvalidArguments(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.errors = message
 
-class MissingFile(error, metaclass=Singleton):
+class MissingFile(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class MissingLibrarries(error, metaclass=Singleton):
+class MissingLibrarries(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class InvalidContainer(error, metaclass=Singleton):
+class InvalidContainer(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class InvalidTemplate(error, metaclass=Singleton):
+class InvalidTemplate(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class UndefinedInfra(error, metaclass=Singleton):
+class UndefinedInfra(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class InfraInitializationError(error, metaclass=Singleton):
+class InfraInitializationError(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class InfraInitializationError(error, metaclass=Singleton):
+class InfraInitializationError(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class ArgValidationError(error, metaclass=Singleton):
+class ArgValidationError(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class UndefinedMethod(error, metaclass=Singleton):
+class UndefinedMethod(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class ValidationError(error, metaclass=Singleton):
+class ValidationError(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class callDynaFuncError(error, metaclass=Singleton):
+class callDynaFuncError(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)
         self.error = message
 
-class processJobError(error, metaclass=Singleton):
+class processJobError(Error, metaclass=Singleton):
     def __init__(self, message, logger = None):
         # Call the base class constructor with the parameters it needs
         super().__init__(message, logger)

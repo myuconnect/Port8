@@ -118,6 +118,7 @@ class Infra(object, metaclass=Singleton):
                 'port' : self.repConfigData['Port'],
                 'database' : self.repConfigData['Name']
             }
+
             self.schedulerConfigData = self.__bootStrapData['Main']['Modules']['Scheduler']
             self.loggingConfigData = self.__bootStrapData['Main']['Modules']['Logging']
             self.restApiConfigData = self.__bootStrapData['Main']['Modules']['RestAPI']
@@ -301,32 +302,90 @@ class Infra(object, metaclass=Singleton):
             self.logger.critical('Error obtaining db connection using {}'.format(self.dbConfigData))
             raise err
 
-    def closeConnection(self, dbArg):
-        if dbArg:
-            dbArg.close()
+    def __closeConnection(self, conn):
+        if conn:
+            conn.close()
 
-    def isConnectionOpen(self, dbCursorArg):
+    def isConnectionOpen(self, conn):
         try:
-            dbCursorArg.execute('select now()')
+            dbCur = conn.cursor()
+            dbCur.execute('select now()')
             return True
         except Exception as err:
             return False
 
 class RestInfra(Infra, metaclass=Singleton):
     def __init__(self):
-
+        # calling super (Infra) class init method
         super().__init__()
 
         print("Validating database............................".ljust(50),end='')
         super()._Infra__validateDb(self.globals.RestInfra)
+
         #self.db = self._Infra__getNewConnection()
+
         self.Logger = \
             self.logging.buildLoggingInfra(\
                 self.loggingConfigData,\
                 self.globals.LoggerName[self.globals.RestInfra]['LogFile'],
                 self.globals.LoggerName[self.globals.RestInfra]['Name']
                 )
+        print("Loading factory method metadata")
+        # need to load factory metadata somewhere else. this is callingg mysql and ,mysql is callin infra going in loop
+        self.factoryMetadata = self.loadFactoryMetadata()
+        print('Factory metadata ',self.factoryMetadata)
         self.Logger.debug('this is test from Rest Infrastructure')
+
+    def loadFactoryMetadata(self):
+        #from com.port8.core.mysqlutils import MysqlUtil
+        try:
+            conn = super()._Infra__getNewConnection()
+            dbCur = conn.cursor()
+            dbResult = dbCur.execute(self.globals.buildFactoryDataSql)
+            myAllColumns = dbCur.column_names
+            myRawData = dbCur.fetchall()
+
+            #building dict data
+            myData = [dict(zip(myAllColumns, row)) for row in myRawData]
+            dbCur.close()
+            conn = super()._Infra__closeConnection(conn)
+            #print('Factory metadata (raw)', myData)
+            myFactoryData = list() 
+            #print('myData count', len(myData))
+            for pageAction in myData:
+                #print('in loop')
+                #checking if this page exists 
+                pageIdx = [idx for idx, val in enumerate(myFactoryData) if myFactoryData[idx]['PAGE_ID'] == pageAction['PAGE_ID']]
+                #print('pageIdx',pageIdx)
+                if pageIdx: pageIdx = pageIdx[0]
+                #print('index', pageIdx)
+                if not pageIdx:
+                    # page doesnt exist, adding new page and its 1st action
+                    #print('page not found', pageAction['PAGE_ID'], myFactoryData)
+                    myFactoryData.append(
+                        {'PAGE_ID': pageAction['PAGE_ID'], 'PAGE_STATUS' : pageAction['PAGE_STATUS'],
+                            "ACTIONS" : [
+                                {'ACTION_ID' : pageAction['ACTION_ID'], 'ACTION_STATUS' : pageAction['ACTION_STATUS'],
+                                'BPM_CALL_JSON': eval(pageAction['BPM_CALL_JSON']) }
+                            ] 
+                        }
+                    )
+                else:
+                    # page exist, adding action
+                    #print('page found',pageIdx, pageAction['PAGE_ID'], myFactoryData[pageIdx])
+                    myFactoryData[pageIdx]["ACTIONS"].append(
+                        {'ACTION_ID' : pageAction['ACTION_ID'], 
+                         'ACTION_STATUS' : pageAction['ACTION_STATUS'],
+                         'BPM_CALL_JSON': eval(pageAction['BPM_CALL_JSON']) 
+                        }
+                    )
+
+            #print('Factory metadata', myFactoryData)
+            return myFactoryData
+
+        except Exception as err:
+            raise err
+        # we need to build factory metadata which will be used by factotu method to navigate method name
 
 class SchedInfra(Infra, metaclass=Singleton):
     def __init__(self):
@@ -362,7 +421,7 @@ class DaemonInfra(Infra, metaclass=Singleton):
         #inheriting Super class variables
         super(DaemonInfra, self).__init__()
 
-        # creating logger for RestApi infrastructure
+        # creating logger for Daemon infrastructure
         self.Logger = \
             self.logging.buildLoggingInfra(\
                 self.loggingConfigData,\

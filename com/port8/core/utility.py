@@ -3,8 +3,7 @@ from jsonschema import *
 
 from com.port8.core.singleton import Singleton
 from com.port8.core.globals import Global
-from globals import Global
-from error import *
+from com.port8.core.error import *
 
 # Python 3:
 #Removed dict.iteritems(), dict.iterkeys(), and dict.itervalues().
@@ -34,6 +33,31 @@ class Utility(object, metaclass=Singleton):
         except Exception as error:
             return False
 
+    def isValidRestRequest(self, reqDict):
+        '''
+        Description: Checks if request passed as dict had all the structure of Request template
+        '''
+        print(reqDict, type(reqDict))
+        if not isinstance(reqDict, dict):
+            print("Request is not dict type")
+            return False
+
+        myRequestTemplate = self.getACopy(self.globals.Template['Request'])
+        print('Request template >>>', str(myRequestTemplate))
+        myReqStru = self.getDictStru(myRequestTemplate)
+        myReqTemplateStru = self.getDictStru(reqDict)
+        print('Request structure (passed) >>>', myReqStru)
+        print('Request template structure (passed) >>>', myReqTemplateStru) 
+        return myReqStru == myReqTemplateStru 
+
+    def getDictStru(self, argDict):
+        if self.isDict(argDict):
+            return argDict.keys()
+
+    def getNestedDictStru(self, argDict):
+        if self.isDict(argDict):
+            return {key:self.getNestedDictStru(argDict[key]) for key in argDict}
+
     def joinListContents(self, listArg, listSep):
         return listSep.join(listArg)
 
@@ -48,12 +72,12 @@ class Utility(object, metaclass=Singleton):
 
     def removeEmptyValueKeyFromDict(self, argDict):
         # removes key if it has empty or 0 value
-        myMainArgData = self.getCopy(argDict)
+        myMainArgData = self.getACopy(argDict)
         return dict([(key,value) for key,value in myMainArgData.items() if (value)])
 
     def removeEmptyValueFromList(self, argList):
         # removes key if it has empty or 0 value
-        myMainArgData = self.getCopy(argList)
+        myMainArgData = self.getACopy(argList)
         return list([(value) for value in myMainArgData if (value)])
 
     def convList2Dict(self, argValueList):
@@ -330,7 +354,7 @@ class Utility(object, metaclass=Singleton):
         return myActivityLogData
 
     def getRequestStatus(self, argStatus, argStatusMessage = None, argData = None, argTraceBack = None):
-        myRequestStatus = self.getCopy(self.globals._Global__RequestStatus)
+        myRequestStatus = self.getACopy(self.globals.RequestStatus)
         if argStatus:
             myRequestStatus.update({'Status' :argStatus})
         if argStatusMessage:
@@ -346,63 +370,19 @@ class Utility(object, metaclass=Singleton):
         #fi
         return myRequestStatus
 
-    def buildResponseData(self, responseModeArg, resultStatusArg, resultDataArg = {}):
+    def buildResponseData(self, resultStatusArg, resultDataArg = {}):
        
-        ''' if this is internal request, we should not built the response, response will be built by mehtod whcih
-        was called externally     '''
-
-        if (argResponseMode == self.globals._Global__InternalRequest):
-            if argResultData:
-                return argResultData
-            else:
-                return argResultStatus
-            #fi
-        #fi
-
-        #myResponseData = self.envInstance.getTemplateCopy(self.Globals._ResponseTemplate)
-        myResponseData = self.getTemplateCopy(self.globals.ResponseTemplate)
+        myResponse = self.getTemplateCopy(self.globals.ResponseTemplate)
         #print("Response",myResponseData)
-        myData = argResultData
+        myData = resultDataArg
 
-        if (argResultType == 'Update'):
-            myResponseStatus = self.getUpdateStatus(argResultStatus)
-            myResponseData['MyResponse']['Header']['Status'] = myResponseStatus
-            myResponseData['MyResponse']['Header']['Message'] = myResponseStatus
-        elif (argResultType == 'Insert'):
-            myResponseStatus = self.getCreateStatus(argResultStatus)
-            myResponseData['MyResponse']['Header']['Status'] = myResponseStatus
-            myResponseData['MyResponse']['Header']['Message'] = myResponseStatus
-        elif (argResultType == 'Find'):
-            myResponseData['MyResponse']['Header']['Status'] = argResultStatus['Status']
-            myResponseData['MyResponse']['Header']['Message'] = argResultStatus['Message']
-            myResponseData['MyResponse']['Header']['Traceback'] = argResultStatus['Traceback']
-            #myData = argResult
-        elif (argResultType == 'Error'):
-            #print("Success",self.Globals._Global__Success)
-            myResponseData['MyResponse']['Header']['Status'] = argResultStatus['Status']
-            myResponseData['MyResponse']['Header']['Message'] = argResultStatus['Message']
-            myResponseData['MyResponse']['Header']['Traceback'] = argResultStatus['Traceback']
-            myData = []
-
-        ''' if data element passed, we will copy the "Data" to "Data" section, "Data.Summary" to "Header.Summary" secton'''
         try:
-            # if myData is not iterable, exception will be raised, will ignore the exception 
-            if (myData) and (self.globals._Global__DataKey in myData) and (myData[self.globals._Global__DataKey]):
-                myResponseData['MyResponse'][self.globals._Global__DataKey] = myData[self.globals._Global__DataKey]
-                if (self.globals._Global__SummaryKey in myData) and (myData[self.globals._Global__SummaryKey]):
-                    myResponseData['MyResponse']['Header'][self.globals._Global__SummaryKey]= myData[self.globals._Global__SummaryKey]    
-            elif (myData) and (self.globals._Global__DataKey not in myData):
-                ''' we got data but "data" key is missing '''
-                if self.isDict:
-                    myResponseData['MyResponse'][self.globals._Global__DataKey] = [myData]
-                else:
-                    myResponseData['MyResponse'][self.globals._Global__DataKey] = myData
-                #fi
-            #fi                    
+            myResponse['Status'] = resultStatusArg
+            myResponse['Data'] = myData
         except TypeError:
             pass
 
-        return myResponseData 
+        return myResponse
 
     def extrAllDocFromResultSets(self, argResultSets):
         if (self.globals._Global__DataKey in argResultSets) and (argResultSets[self.globals._Global__DataKey]):
@@ -531,7 +511,7 @@ class Utility(object, metaclass=Singleton):
         Usage: valArguments(<arg keylist>, <arg dict>)
         Return: Arg valdiation template >> {"Status" : '', "Message" : '', "Arguments" : {}, "MissingArg" : []} 
         '''
-        print(argDict)
+        #print(argDict)
         myArgValResult = self.getACopy(self.globals.Template['ArgValResult'])
         #myArgDict = self.getACopy(argDict)
         myArgDict = argDict
@@ -563,8 +543,8 @@ class Utility(object, metaclass=Singleton):
 
         try:
 
-          if argTemplate in self.globals.template:
-            return copy.deepcopy(self.globals.template[argTemplate])
+          if argTemplate in self.globals.Template:
+            return copy.deepcopy(self.globals.Template[argTemplate])
           else:
             raise InvalidTemplate('Template [{template}] is missing in template repository !!! '.format(template=argTemplate))
 
@@ -772,6 +752,7 @@ class Utility(object, metaclass=Singleton):
                 return True
 
     def logError(self, logger = None):
+        exc_type, exc_value, exc_traceback = sys.exc_info()
         error_text = (repr(traceback.format_exception(exc_type, exc_value,exc_traceback, limit=8)))
         if logger:
             logger.ERROR(error_text)

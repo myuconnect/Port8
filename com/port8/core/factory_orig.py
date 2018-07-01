@@ -47,13 +47,14 @@ class Factory(object, metaclass=Singleton):
             myLibrary, myClass, myMethod = bpsProcessVal
             if myLibrary and myClass and myMethod:
                 self.myModuleLogger.debug("found, bps process [{bpsprocVal}]".format(bpsprocVal=bpsProcessVal))
-                myResponse = self.__executeBPSPRocess(myLibrary, myClass, myMethod, myMainArgData) 
-                myRquestStatus = self.utilityInstance.getRequestStatus(self.globalInstance._Global__Success)            
+                myResult = self.__executeBPSPRocess(myLibrary, myClass, myMethod, myMainArgData) 
+                myRquestStatus = self.utilityInstance.getRequestStatus(self.globals.Success)
+                myResponse = self.utilityInstance.buildResponseData(myRquestStatus, myResult)
             else:
                 self.myModuleLogger.debug("did not find mapped bps process, value from navigating factoty data [{bpsprocVal}]".format(bpsprocVal=bpsProcessVal))
-                myRquestStatus = self.utilityInstance.getRequestStatus(self.globalInstance._Global__UnSuccess,'Invalid Screen [{screen}] Action [{action}]'.
-                                    format(screen=myScreenId, action=myActionId))            
-                myResponse = self.utilityInstance.buildResponseData('E',myRquestStatus,'Error')
+                myRquestStatus = self.utilityInstance.getRequestStatus(self.globals.UnSuccess,'Invalid Screen [{screen}] Action [{action}]'.
+                                    format(screen=myScreenId, action=myActionId)) 
+                myResponse = self.utilityInstance.buildResponseData(myRquestStatus,'Error')
             #fi
 
             #self.myModuleLogger.debug("return value from bps process [{responseVal}]".format(responseVal=myResponse))

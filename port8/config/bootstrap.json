@@ -89,7 +89,7 @@
 						        }                               
 						    }
 						},
-			"RestAPI" : {"Missing":"Config"},
+			"RestAPI" : {"FlaskHost" : "anil-HP-PAVILION-NOTEBOOK", "FlaskPort" : 5800},
 			"Daemon" : {"Missing":"Config"},
 			"JsonSchema" : {"ConfigFile":"schema.json"}
 		},			

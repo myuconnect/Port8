@@ -25,19 +25,26 @@ IGNORE 1 LINES
 ;
 
 insert into p$ui_page (
-    ui_page_id, ui_page_name, ui_page_details, ui_page_status
+    page_id, page_name, page_details, page_status
     )
     values
-    ('pg100001','LANDING_SUMMARY','Summary page, default landing page','ACTIVE'),
-    ('pg100002','HOST_TENANT_SUMMARY','Summary page, default landing page','ACTIVE'),
-    ('pg100003','HOST_TENANT_SECSCAN_DETAIL','Summary page, default landing page','ACTIVE');
+    ('pg100001','Score main','Average score main','ACTIVE'),
+    ('pg100002','Location score summary','Location average score','ACTIVE'),
+    ('pg100003','Vendor score summary','Vendor average score','ACTIVE'),
+    ('pg100004','Location Vendor score summary','Location Vendor average score','ACTIVE'),
+    ('pg100005','Host score summary','Host average score (All,Location,Vendor,LocVendor','ACTIVE'),
+    ('pg100006','Tenant score summary','Tenant score (All,Location,Vendor,LocVendor, Host','ACTIVE');
 
-insert into p$ui_page_action (
-    ui_page_action_id, ui_page_id, ui_action_name, ui_action_details, ui_page_action_status,
+insert into p$ui_action (
+    action_id, page_id, action_name, action_details, action_status,
     bpm_library, bpm_class, bpm_method, bpm_arguments, bpm_call_json, bpm_status)
     values
-    ('pg100001_000','pg100001','LANDING_MAIN_PAGE','Landing Page','ACTIVE','com.port8.bpm','SecScan','getAllSecScanSumm',NULL,'{"lib":"com.port8.bpm","cls":"Landing","method":"getDataForLanding","args":[]}', 'ACTIVE'),
-    ('pa100001001','pg100001','DISP_SEC_SCAN','Display security scan for all the hosts','ACTIVE','com.port8.bpm','SecScan','getAllSecScanSumm',NULL,'{"lib":"com.port8.bpm","cls":"SecScan","method":"getAllSecScanSumm","args":[]}', 'ACTIVE');
+    ('act_pg100001_001','pg100001','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getOverallAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getOverallAvgScore","args":[]}', 'ACTIVE'),
+    ('act_pg100002_001','pg100002','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocAvgScore","args":[]}', 'ACTIVE'),
+    ('act_pg100003_001','pg100003','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getVendorAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getVendorAvgScore","args":[]}', 'ACTIVE'),
+    ('act_pg100004_001','pg100004','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocVendorAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocVendorAvgScore","args":[]}', 'ACTIVE'),
+    ('act_pg100005_001','pg100005','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getHostAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostAvgScore","args":[]}', 'ACTIVE'),
+    ('act_pg100006_001','pg100006','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getHostTenantScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostTenantScore","args":[]}', 'ACTIVE');
 
 insert into p$security_policy (
     security_policy_id, target, status, start_date, end_time, comments

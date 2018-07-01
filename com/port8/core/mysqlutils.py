@@ -98,7 +98,7 @@ class MysqlUtil(object, metaclass=Singleton):
 				mySqlOutput = self.globals.SqlOutput['Default']
 
 			# executing sql
-			#print(mySqlText, mySqlArgs)
+			print(mySqlText, mySqlArgs)
 			myDBcur = myDBConn.cursor(buffered=True)
 			totalRows = myDBcur.execute(mySqlText, mySqlArgs)
 
