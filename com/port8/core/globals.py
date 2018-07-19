@@ -74,9 +74,9 @@ class Global(object, metaclass=Singleton):
         #template
         self.Template = \
             {
-                "Response":{'Status':'','Message': '', 'Data':{}},
-                "Request" : {"Page":"","Action" : "","Arguments" : {}  , "Security":{} },
-                "DBResponse" : {"Status" : '', "Rows" : 0, "Message" : "", "Data" : "" },
+                "Response":{'Status':'','Message': '', 'Data':[]},
+                "Request" : {"Page":"","Action" : "","Arguments" : ""},
+                "DBResponse" : {"Status" : '', "Rows" : 0, "Message" : "", "Data" : [] },
                 "ArgValResult" : {"Status" : '', "Message" : '', "Arguments" : {}, "MissingArg" : []},
                 "LandingPage" : {
                     "AvgScore" : 0, 
@@ -116,19 +116,55 @@ class Global(object, metaclass=Singleton):
         self.avgScoreSql = 'select avg(last_scan_score) "AVG_SCORE" \
             from p$ht_info '
 
-        self.locAvgScoreSql = 'select IFNULL(dc_info,\'UNDEFINED\') "LOCATION", avg(last_scan_score) "AVG_SCORE" \
+        self.getAllLocAvgScoreSql = 'select IFNULL(dc_info,\'UNDEFINED\') "LOCATION", avg(last_scan_score) "AVG_SCORE" \
             from p$ht_info \
             group by dc_info '
 
-        self.getAllHostScoreSql = 'select host_name "HOST", dc_info "LOCATION", last_scan_score "AVG_SCORE", last_scan_id "LAST_SCAN", last_scan_time "LAST_SCAN_TIME" \
-            from p$ht_info '
-
-        self.getAHostScoreSql = 'select host_name "HOST", dc_info "LOCATION", last_scan_score "AVG_SCORE", last_scan_id "LAST_SCAN", last_scan_time "LAST_SCAN_TIME" \
+        self.getALocAvgScoreSql = 'select IFNULL(dc_info,\'UNDEFINED\') "LOCATION", avg(last_scan_score) "AVG_SCORE" \
             from p$ht_info \
-            where host_id = %(HostId)s'
+            where dc_info = %(Location)s \
+            group by dc_info '
 
-        self.vendorProdAvgScoreSql = 'select tenant_vendor "VENDOR", vendor_prod_name "PRODUCT", avg(last_scan_score) "AVG_SCORE" \
+        self.getHostInfoSql = 'select host.host_id"HOST_ID", host.host_name "HOST", \
+                host.location "PHYSICAL_LOC", host.dc_info "LOCATION", \
+                host.os "OS", host.os_version "OSVersion", host.os_release "OS_RELEASE", host.processor "PROCESSOR", \
+                host.phys_memory_mb "PHYSICAL_MEMORY_MB", host.swap_memory_mb "SWAP_MEMORY_MB", \
+                host.ip_addresses "IP_ADDRESSES", \
+                host.last_scan_score "AVG_SCORE", host.last_scan_id "LAST_SCAN", host.last_scan_time "LAST_SCAN_TIME" \
+            from p$ht_info host'
+
+        self.getAllHostScoreSql = 'select host.host_id"HOST_ID", host_name "HOST", dc_info "LOCATION", last_scan_score "AVG_SCORE", last_scan_id "LAST_SCAN", last_scan_time "LAST_SCAN_TIME" \
+            from p$ht_info host'
+
+        self.getAHostScoreSql = 'select host.host_id "HOST_ID", host.host_name "HOST", host.dc_info "LOCATION", host.last_scan_score "AVG_SCORE", host.last_scan_id "LAST_SCAN", host.last_scan_time "LAST_SCAN_TIME" \
+            from p$ht_info host \
+            where host.host_id = %(HostId)s'
+
+        self.getLocVendorHostScoreSql = 'select distinct host.host_id "HOST_ID", host.host_name "HOST", host.dc_info "LOCATION", host.last_scan_score "AVG_SCORE", \
+                host.last_scan_id "LAST_SCAN", host.last_scan_time "LAST_SCAN_TIME", \
+                tenant.tenant_vendor "VENDOR", tenant.vendor_prod_name "VENDOR_PRODUCT" \
+            from p$ht_tenant tenant, p$ht_info host \
+            where tenant.tenant_vendor = %(VendorId)s and tenant.host_id = host.host_id \
+            and host.dc_info = %(Location)s'
+
+        self.getLocHostScoreSql = 'select host.host_id "HOST_ID", host.host_name "HOST", host.dc_info "LOCATION", host.last_scan_score "AVG_SCORE", host.last_scan_id "LAST_SCAN", host.last_scan_time "LAST_SCAN_TIME" \
+            from p$ht_info host \
+            where host.dc_info = %(Location)s'
+
+        self.getVendorHostScoreSql = 'select distinct host.host_id "HOST_ID", host.host_name "HOST", host.dc_info "LOCATION", host.last_scan_score "AVG_SCORE", \
+                host.last_scan_id "LAST_SCAN", host.last_scan_time "LAST_SCAN_TIME", \
+                tenant.tenant_vendor "VENDOR", tenant.vendor_prod_name "VENDOR_PRODUCT" \
+            from p$ht_tenant tenant, p$ht_info host \
+            where tenant.tenant_vendor = %(VendorId)s and tenant.host_id = host.host_id '
+
+        self.getAllVendorProdAvgScoreSql = 'select tenant_vendor "VENDOR", vendor_prod_name "PRODUCT", avg(last_scan_score) "AVG_SCORE" \
             from p$ht_tenant \
+            group by tenant_vendor, vendor_prod_name \
+            order by tenant_vendor, vendor_prod_name'
+
+        self.getAVendorProdAvgScoreSql = 'select tenant_vendor "VENDOR", vendor_prod_name "PRODUCT", avg(last_scan_score) "AVG_SCORE" \
+            from p$ht_tenant \
+            where tenant_vendor = %(VendorId)s \
             group by tenant_vendor, vendor_prod_name \
             order by tenant_vendor, vendor_prod_name'
 
@@ -138,9 +174,31 @@ class Global(object, metaclass=Singleton):
             where tenant.host_id = host.host_id \
             order by host.host_name, tenant.tenant_type, tenant.tenant_name '
 
-        self.locVendorAvgScoreSql = 'select host.dc_info "LOCATION", tenant.tenant_vendor "VENDOR", tenant.vendor_prod_name "PRODUCT", avg(tenant.last_scan_score) "AVG_SCORE" \
+        self.getAllLocVendorAvgScoreSql = 'select host.dc_info "LOCATION", tenant.tenant_vendor "VENDOR", tenant.vendor_prod_name "PRODUCT", avg(tenant.last_scan_score) "AVG_SCORE" \
             from p$ht_tenant tenant, p$ht_info host \
             where host.host_id = tenant.host_id \
+            group by host.dc_info, tenant.tenant_vendor, tenant.vendor_prod_name \
+            order by host.dc_info, tenant.tenant_vendor, tenant.vendor_prod_name '
+
+        self.getALocAllVendorAvgScoreSql = 'select host.dc_info "LOCATION", tenant.tenant_vendor "VENDOR", tenant.vendor_prod_name "PRODUCT", avg(tenant.last_scan_score) "AVG_SCORE" \
+            from p$ht_tenant tenant, p$ht_info host \
+            where host.host_id = tenant.host_id and \
+                host.dc_info = %(Location)s \
+            group by host.dc_info, tenant.tenant_vendor, tenant.vendor_prod_name \
+            order by host.dc_info, tenant.tenant_vendor, tenant.vendor_prod_name '
+
+        self.getAllLocAVendorAvgScoreSql = 'select host.dc_info "LOCATION", tenant.tenant_vendor "VENDOR", tenant.vendor_prod_name "PRODUCT", avg(tenant.last_scan_score) "AVG_SCORE" \
+            from p$ht_tenant tenant, p$ht_info host \
+            where host.host_id = tenant.host_id and \
+                tenant.tenant_vendor = %(VendorId)s \
+            group by host.dc_info, tenant.tenant_vendor, tenant.vendor_prod_name \
+            order by host.dc_info, tenant.tenant_vendor, tenant.vendor_prod_name '
+
+        self.getALocAVendorAvgScoreSql = 'select host.dc_info "LOCATION", tenant.tenant_vendor "VENDOR", tenant.vendor_prod_name "PRODUCT", avg(tenant.last_scan_score) "AVG_SCORE" \
+            from p$ht_tenant tenant, p$ht_info host \
+            where host.host_id = tenant.host_id and \
+                host.dc_info = %(Location)s and \
+                tenant.tenant_vendor = %(VendorId)s \
             group by host.dc_info, tenant.tenant_vendor, tenant.vendor_prod_name \
             order by host.dc_info, tenant.tenant_vendor, tenant.vendor_prod_name '
 

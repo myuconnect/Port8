@@ -16,20 +16,31 @@ class InterfaceUtil(object, metaclass=Singleton):
 		self.repDB = MysqlUtil(self.logger)
 		self.repConn = self.repDB.getRepDBConnection()
 
-	def __getAvgScore(self):
+	def __getAvgScore(self, args):
 		'''
 		Description: Returns overall average CIS scan score
 		Return: <average_score>
 		'''
 		try:
+			# initializing
+			myMandatoryArgs = ["SecurityToken"]
+
+			# Validaring arguments
+			myValResult = self.utility.valRequiredArg(args, myMandatoryArgs)
+
+			if myValResult[0] == self.globals.UnSuccess:
+				myResponse = self.utility.buildResponse(self.globals.UnSuccess, myValResult[2])
+				return myResponse
+
 			# Average score
 			dbResult = self.repDB.execSelectSql(\
 				Conn = self.repConn, SqlText = self.globals.avgScoreSql, SqlArgs=None, SqlOutput = self.globals.SqlOutput['Dict'])
 
-			myData = float()
+			myScore = float()
 
 			if dbResult['Status'] == self.globals.Success:
-				myData = round(dbResult['Data'][0]['AVG_SCORE'],2)
+				myScore = round(dbResult['Data'][0]['AVG_SCORE'],2)
+				myData = [myScore]
 				myResponse = self.utility.buildResponse(self.globals.Success, self.globals.Success, myData)
 			else:
 				myResponse = self.utility.buildResponse(self.globals.UnSuccess, dbResult['Data'])
@@ -39,20 +50,37 @@ class InterfaceUtil(object, metaclass=Singleton):
 		except Exception as error:
 			raise
 
-	def __getAvgLocScore(self):
+	def __getAvgLocScore(self, args):
 		'''
 		Description: Returns average CIS scan score for each location
 		Return: [{"<LOCATION>" : <average_score>}]
 		'''
 		try:
-			# Average location score
-			dbResult = self.repDB.execSelectSql(\
-				Conn = self.repConn, SqlText = self.globals.locAvgScoreSql, SqlArgs = None, SqlOutput = self.globals.SqlOutput['Dict'])
+			# initializing
+			myMandatoryArgs = ["SecurityToken"]
+			myOptionalArgs = ["Location"]
+
+			# Validaring arguments
+			myValResult = self.utility.valRequiredArg(args, myMandatoryArgs)
+
+			if myValResult[0] == self.globals.UnSuccess:
+				myResponse = self.utility.buildResponse(self.globals.UnSuccess, myValResult[2])
+				return myResponse
+				#raise InvalidArguments(myValResult[2])
+
+			if not ('Location' in args):
+				dbResult = self.repDB.execSelectSql(\
+					Conn = self.repConn, SqlText = self.globals.getAllLocAvgScoreSql, SqlArgs = args, SqlOutput = self.globals.SqlOutput['Dict'])
+			else:
+				# will pass args
+				dbResult = self.repDB.execSelectSql(\
+					Conn = self.repConn, SqlText = self.globals.getALocAvgScoreSql, SqlArgs = args, SqlOutput = self.globals.SqlOutput['Dict'])
 			myData = []
 
 			if dbResult['Status'] == self.globals.Success:
 				for loc in dbResult['Data']:
 					myData.append({ 'Location' : loc['LOCATION'], 'AvgScore' : round(loc['AVG_SCORE'],2) })
+
 				myResponse = self.utility.buildResponse(self.globals.Success, self.globals.Success, myData)
 			else:
 				myResponse = self.utility.buildResponse(self.globals.UnSuccess, dbResult['Data'])
@@ -62,41 +90,190 @@ class InterfaceUtil(object, metaclass=Singleton):
 		except Exception as error:
 			raise
 
-	def __getAvgHostScore(self, args = None):
+	def __getHostInfo(self, args):
 		'''
 		Description: Returns average CIS scan score for all host
+		Arguments: Optional; HostName, HostId,OS, PhysicalMem, Location
+			# OS = [], 0 --> OS name, 1--> os ver
+			# PhysMemory [] --> 0 --> Operator, 1--> Value
+			# Location
+
 		Return: [{"<HOST>" : <average_score>, "LOCATION" : <location>}]
 		'''
 		try:
-			# average host score
-			# initialization
-			Location = Vendor = host = ''
-			if args:
-				if 'Location' in args:
-					Location = args['Location']
-				if 'Vendor' in args:
-					Vendor = args['Vendor']
-				if 'HostId' in args:
-					HostId = args['HostId']
+			# initializing
+			myMandatoryArgs = ["SecurityToken"]
+			myOptionalArgs = ["Location","VendorId","HostId","HostName","OS","PhysMemory"]
+			myCriteria = myDynaSql = myDynaSqlWhereClause = myDynaSqlGroupByClause = myDynaSqlOrderByClause = ""
 
-			# if no argument passed, returning all hosts
-			if not args or (not Location and not Vendor and not HostId):
-				dbResult = self.repDB.execSelectSql(\
-					Conn = self.repConn, SqlText = self.globals.getAllHostScoreSql, SqlArgs = None, SqlOutput = self.globals.SqlOutput['Dict'])
+			# Validaring arguments
+			myArguments = self.utility.removeEmptyKeyFromDict(args)
+			myValResult = self.utility.valRequiredArg(myArguments, myMandatoryArgs)
+			print('arg recvd', myArguments)
 
-			# get host avg scroe for a host
-			if args and HostId:
-				dbResult = self.repDB.execSelectSql(\
-					Conn = self.repConn, SqlText = self.globals.getAHostScoreSql, SqlArgs = HostId, SqlOutput = self.globals.SqlOutput['Dict'])
+			if myValResult[0] == self.globals.UnSuccess:
+				myResponse = self.utility.buildResponse(self.globals.UnSuccess, myValResult[2])
+				return myResponse
 
+			myDynaSql = self.globals.getHostInfoSql
 
-			myData = list()
+			if 'HostName' in myArguments:
+				myCriteria = ''.join(['host_name = %(HostName)s'])
+				#myArguments.update({'HostName' : myArguments['HostName']})
+
+			if 'HostId' in myArguments:
+				if myCriteria:
+					myCriteria = ''.join([myCriteria,' and ', 'host_id = %(HostId)s'])
+				else:
+					myCriteria = ''.join(['host_id = %(HostId)s'])
+				#myArguments.update({'HostId' : myArguments['HostId']})
+
+			if 'Location' in myArguments:
+				if myCriteria:
+					myCriteria = ''.join([myCriteria,' and ', 'dc_info = %(Location)s'])
+				else:
+					myCriteria = ''.join(['dc_info = %(Location)s'])
+				#myArguments.update({'Location' : myArguments['Location']})
+
+			#print('Args',myArguments)
+			if 'OS' in myArguments:
+				myOS = myOSVer = None
+
+				if (isinstance(myArguments['OS'], list) or isinstance(myArguments['OS'], tuple)) and len(myArguments['OS'] == 2):
+					myOS = myArguments['OS'][0]
+					myOSVer = myArguments['OS'][1]
+					myArguments.update({'OS' : myOS, 'OSVersion' : myOSVer})
+				elif (isinstance(myArguments['OS'], list) or isinstance(myArguments['OS'], tuple)) and len(myArguments['OS'] == 1):
+					myOS = myArguments['OS'][0]
+					myArguments.update({'OS' : myOS})
+				else:
+					myOS  = myArguments['OS']
+					myArguments.update({'OS' : myOS})
+
+				if myCriteria: 
+					if myOS:
+						myCriteria = ''.join([myCriteria,' and ', 'OS = %(OS)s'])
+
+					if myOSVer:
+						myCriteria = ''.join([myCriteria,' and ', 'OSVersion = %(OSVersion)s'])
+				else:
+					if myOS:
+						myCriteria = ''.join(['OS = %(OS)s'])
+
+					if myOSVer:
+						myCriteria = ''.join([myCriteria, ' and ', 'OSVersion = %(OSVersion)s'])
+
+			#Physical Mem
+			if 'PhysicalMem' in myArguments:
+				myPhysMem = myPhysMemOper = None
+
+				if len(myArguments['PhysicalMem'] == 2):
+					myPhysMem = myArguments['PhysicalMem'][0]
+					myPhysMemOper = myArguments['OS'][1]
+				elif len(myArguments['OS'] == 1):
+					myPhysMem = myArguments['OS'][0]
+					myPhysMemOper = ' = '
+				else:
+					myPhysMem  = myArguments['OS']
+					myPhysMemOper = ' = '
+
+				myArguments.update({'PhyscialMem' : myPhysMem})
+				if myCriteria:
+					myCriteria = ''.join([myCriteria,' and ', 'physical_memory_mb ' , myPhysMemOper, ' %(PhysicalMem)s'])
+				else:					
+					myCriteria = ''.join(['physical_memory_mb ' , myPhysMemOper, ' %(PhysicalMem)s'])
+
+			if myCriteria:
+				myDynaSql = ''.join([myDynaSql, ' where ', myCriteria])
+
+			print('sql',myDynaSql, myArguments)
+			dbResult = self.repDB.execSelectSql(\
+				Conn = self.repConn, SqlText = myDynaSql, SqlArgs = myArguments, SqlOutput = self.globals.SqlOutput['Dict'])
+
+			myHostData = []
 
 			if dbResult['Status'] == self.globals.Success:
 				for host in dbResult['Data']:
-					myData.append({'Host': host['HOST'], 'AvgScore' : round(host['AVG_SCORE'],2), "Location" : host['LOCATION'], "LastScan" : host["LAST_SCAN"], "LastScanTime" : host["LAST_SCAN_TIME"]})
+					myData = {
+						'HostId' : host['HOST_ID'],'Host': host['HOST'],
+						"Location" : host['LOCATION'], "PhysicalLoc" : host['PHYSICAL_LOC'],
+						"OS" : host['OS'], "OSVersion" : host['OSVersion'], "OSRelease" : host['OS_RELEASE'],
+						"PhysicalMemMB" : host['PHYSICAL_MEMORY_MB'], "SwapMemMB" : host['SWAP_MEMORY_MB'],
+						"IPAddress" : host['IP_ADDRESSES'],
+						'AvgScore' : round(host['AVG_SCORE'],2), "LastScan" : host["LAST_SCAN"], "LastScanTime" : host["LAST_SCAN_TIME"]}
+					myHostData.append(myData)
+				myResponse = self.utility.buildResponse(self.globals.Success, self.globals.Success, myHostData)
+			else:
+				myResponse = self.utility.buildResponse(self.globals.UnSuccess, dbResult['Data'])
 
-				myResponse = self.utility.buildResponse(self.globals.Success, self.globals.Success, myData)
+			return myResponse
+
+		except Exception as error:
+			raise
+
+	def __getAvgHostScore(self, args):
+		'''
+		Description: Returns average CIS scan score for all host
+		Arguments: Optional; HostId, Location, VendorId
+		Return: [{"<HOST>" : <average_score>, "LOCATION" : <location>}]
+		'''
+		try:
+			# initializing
+			myMandatoryArgs = ["SecurityToken"]
+			myOptionalArgs = ["Location","VendorId","HostId"]
+
+			# Validaring arguments
+			myArguments = self.utility.removeEmptyKeyFromDict(args)
+			myValResult = self.utility.valRequiredArg(myArguments, myMandatoryArgs)
+
+			if myValResult[0] == self.globals.UnSuccess:
+				myResponse = self.utility.buildResponse(self.globals.UnSuccess, myValResult[2])
+				return myResponse
+
+			Location = Vendor = host = ''
+
+			if 'HostId' in myArguments:
+				# get host avg scroe for a host
+				print('Host id passed, ignoring rest of criteria')
+				mySql = self.globals.getAHostScoreSql
+				#myArgs = self.utility.getACopy(myArguments)
+
+			elif 'Location' in myArguments and 'VendorId' in myArguments:
+				print('Loc/Venodr id passed, ignoring rest of criteria')
+				mySql = self.globals.getLocVendorHostScoreSql
+				#myArgs = self.utility.getACopy(myArguments)
+
+			elif 'Location' in myArguments:
+				print('Loc id passed, ignoring rest of criteria')
+				mySql = self.globals.getLocHostScoreSql
+				#myArgs = self.utility.getACopy(myArguments)
+
+			elif 'VendorId' in myArguments:
+				print('Vendor id passed, ignoring rest of criteria')
+				mySql = self.globals.getVendorHostScoreSql
+				#myArgs = self.utility.getACopy(myArguments)
+
+			else:
+				# no argument passed, returning all hosts
+				print('No arguments passed, getting all host')
+				mySql = self.globals.getAllHostScoreSql
+				myArguments = None
+
+			print('Sql, args >>> ',mySql, myArguments)
+			dbResult = self.repDB.execSelectSql(\
+				Conn = self.repConn, SqlText = mySql, SqlArgs = myArguments, SqlOutput = self.globals.SqlOutput['Dict'])
+
+			myHostData = []
+
+			if dbResult['Status'] == self.globals.Success:
+				for host in dbResult['Data']:
+					myData = {'HostId' : host['HOST_ID'],'Host': host['HOST'], 'AvgScore' : round(host['AVG_SCORE'],2), "Location" : host['LOCATION'], "LastScan" : host["LAST_SCAN"], "LastScanTime" : host["LAST_SCAN_TIME"]}
+					if 'VENDOR' in host:
+						myData.update({"Vendor" : host['VENDOR']})
+					if 'VENDOR_PRODUCT' in host:
+						myData.update({"VendorProduct" : host['VENDOR_PRODUCT']})
+					myHostData.append(myData)
+				myResponse = self.utility.buildResponse(self.globals.Success, self.globals.Success, myHostData)
 			else:
 				myResponse = self.utility.buildResponse(self.globals.UnSuccess, dbResult['Data'])
 
@@ -135,17 +312,38 @@ class InterfaceUtil(object, metaclass=Singleton):
 		except Exception as error:
 			raise
 
-	def __getAvgVendorScore(self):
+	def __getAvgVendorScore(self, args):
 		'''
 		Description: Returns average CIS scan score for all Venodr and its product
 		Return: [{"<vendor>" : {<product> : <score>} }]
 		'''
 		try:
-			# Average location score
-			dbResult = self.repDB.execSelectSql(\
-				Conn = self.repConn, SqlText = self.globals.vendorProdAvgScoreSql, SqlArgs = None, SqlOutput = self.globals.SqlOutput['Dict'])
+			# initializing
+			myMandatoryArgs = ["SecurityToken"]
+			myOptionalArgs = ["VendorId"]
 
-			myData = list()
+			# Validaring arguments
+			myArguments = self.utility.removeEmptyKeyFromDict(args)
+			myValResult = self.utility.valRequiredArg(myArguments, myMandatoryArgs)
+
+			if myValResult[0] == self.globals.UnSuccess:
+				myResponse = self.utility.buildResponse(self.globals.UnSuccess, myValResult[2])
+				return myResponse
+
+			if 'VendorId' in myArguments:
+				#found vendor, will return score for this vendor
+				mySql = self.globals.getAVendorProdAvgScoreSql
+				#myArgs = self.utility.getACopy(args)
+
+			else:
+				# will return score for all vendor
+				mySql = self.globals.getAllVendorProdAvgScoreSql
+				myArguments = None
+
+			dbResult = self.repDB.execSelectSql(\
+				Conn = self.repConn, SqlText = mySql, SqlArgs = myArguments, SqlOutput = self.globals.SqlOutput['Dict'])
+
+			myData = []
 
 			if dbResult['Status'] == self.globals.Success:
 				for vendorProdList in dbResult['Data']:
@@ -177,17 +375,44 @@ class InterfaceUtil(object, metaclass=Singleton):
 			raise
 
 
-	def __getAvgLocVendorScore(self):
+	def __getAvgLocVendorScore(self, args):
 		'''
 		Description: Returns average CIS scan score for all Venodr and its product
 		Return: [{"<location>" : {<vendor> : {<product> : <score> }}}]
 		'''
 		try:
 			# Average location score
-			dbResult = self.repDB.execSelectSql(\
-				Conn = self.repConn, SqlText = self.globals.locVendorAvgScoreSql, SqlArgs = None, SqlOutput = self.globals.SqlOutput['Dict'])
+			# initializing
+			myMandatoryArgs = ["SecurityToken"]
+			myOptionalArgs = ["Location","VendorId"]
 
-			myData = list()
+			# Validaring arguments
+			myArguments = self.utility.removeEmptyKeyFromDict(args)
+			myValResult = self.utility.valRequiredArg(args, myMandatoryArgs)
+
+			if myValResult[0] == self.globals.UnSuccess:
+				myResponse = self.utility.buildResponse(self.globals.UnSuccess, myValResult[2])
+				return myResponse
+
+			if 'Location' in myArguments and 'VendorId' in myArguments:
+				mySql = self.globals.getALocAVendorAvgScoreSql
+				#myArgs = self.utility.getACopy(myArguments)
+
+			elif 'Location' in myArguments:
+				mySql = self.globals.getALocAllVendorAvgScoreSql
+				#myArgs = self.utility.getACopy(myArguments)
+
+			elif 'VendorId' in myArguments:
+				mySql = self.globals.getAllLocAVendorAvgScoreSql
+				#myArgs = self.utility.getACopy(myArguments)
+			else:
+				mySql = self.globals.getAllLocVendorAvgScoreSql
+				myArguments = None
+
+			dbResult = self.repDB.execSelectSql(\
+				Conn = self.repConn, SqlText = mySql, SqlArgs = myArguments, SqlOutput = self.globals.SqlOutput['Dict'])
+
+			myData = []
 
 			if dbResult['Status'] == self.globals.Success:
 				for locVendor in dbResult['Data']:

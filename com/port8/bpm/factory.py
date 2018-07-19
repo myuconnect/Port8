@@ -45,7 +45,12 @@ class Factory(object, metaclass=Singleton):
             myActionId = myMainArgData['Action']
             myArguments = myMainArgData['Arguments']
 
-            myBPMProcess = self.__findBPSProcess (myPageId, myActionId)
+            myResult = self.__findBPSProcess (myPageId, myActionId)
+            if myResult['Status'] == self.globals.Success:
+                myBPMProcess = myResult['Data']
+            else:
+                # we did not find BPM process, returing result
+                return myResult
 
             # extracting tuple value returned from above method
 
@@ -84,16 +89,30 @@ class Factory(object, metaclass=Singleton):
             if len(page) > 1:
                 self.Logger.ERROR('Expecting 1 entry per page, found {found}, Factory metadata >> {factoryData}'.
                     format(found = len(page), factoryData = self.infra.factoryData))
-                return None
-            else:
-                # we found one page, get the 1st item from list
-                self.Logger.debug('found matching page [{page}] in factory metdata'.format(page = argPageId))
-                page = page[0]
-                pageActions = page['ACTIONS']
+
+                myResponse = self.util.buildResponse(\
+                    self.globals.UnSuccess, 
+                    'Metadata is corrupted (found [{cnt}] occurrance of page [{page}]'\
+                        .format(cnt = len(page), page=argPageId))
+                return myResponse
+            
+            if len(page) == 0:
+                # we did not find page
+                self.Logger.debug('did not find requested page >>> {page}'.format(page=argPageId))
+
+                myResponse = self.util.buildResponse(\
+                    self.globals.UnSuccess, 
+                    'Missing requested page in metadata >>> {page}'.format(page=argPageId))
+                return myResponse
+
+            # we found one page, get the 1st item from list
+            self.Logger.debug('found matching page [{page}] in factory metdata'.format(page = argPageId))
+            page = page[0]
+            pageActions = page['ACTIONS']
 
             if pageActions:
                 actionIndx = [indx for indx, val in enumerate(pageActions) if pageActions[indx]['ACTION_ID'] == argActionId ]
-                #print("found ??? >>>",actionIndx, pageActions)
+                 #print("found ??? >>>",actionIndx, pageActions)
                 if actionIndx:
                     self.Logger.debug('found matching action [{action}] on page [{page}] in factory metdata'.format(action = argActionId, page = argPageId))
                     if isinstance(actionIndx, list):
@@ -102,13 +121,21 @@ class Factory(object, metaclass=Singleton):
                     #print("found action >>>",actionIndx, pageActions, pageActions[actionIndx] )
                     myBPMCallJson = pageActions[actionIndx]['BPM_CALL_JSON']
                     self.Logger.debug('BPM Json call found >>> {bpm}'.format(bpm = str(myBPMCallJson)))
-                    return myBPMCallJson
+                    myResponse = self.util.buildResponse(\
+                        self.globals.Success, self.globals.Success,myBPMCallJson)
+                    return myResponse
+                    #return myBPMCallJson
                 else:
                     self.Logger.debug('action [{action}] not found for page [{page}] in factory metdata'.format(action = argActionId, page = argPageId))
-                    return None
+                    myResponse = self.util.buildResponse(\
+                        self.globals.UnSuccess, 
+                        'Missing requested action [{action}] for page >>> {page}'.format(action = argActionId, page=argPageId))
+                    return myResponse
             else:
-                self.Logger.debug('page [{page}] not found in factory metdata'.format(page = argPageId))
-                return None
+                myResponse = self.util.buildResponse(\
+                    self.globals.UnSuccess, 
+                    'Empty actions for page in metadata >>> {page}'.format(page=argPageId))
+                return myResponse
 
         except Exception as err:
             #myRequestStatus = self.util.extractLogError()

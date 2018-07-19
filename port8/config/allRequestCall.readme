@@ -1,3 +1,71 @@
 PostMan URL :http://anil-HP-PAVILION-NOTEBOOK:5800/requestPost
 
-{"Page":"pg100004","Action" : "act_pg100004_001","Arguments" : "", "Security":{}}
+# Page 1, Action 1 (Get Average Score [Main]) 
+# Arguments: 
+		Arguments:
+			SecurityToken (Mandatory)
+#Call : 
+{
+	"Page":"pg100001",
+	"Action" : "pg100001_001",
+	"Arguments" : 
+		{
+			"SecurityToken": "1111"
+		}
+}
+
+
+# Page 2, Action 1 (Get Location Average Score) 
+# Arguments: 
+		Arguments:
+			SecurityToken (Mandatory),
+			Location (optional) [if arg not passed, return all vendor]
+#Call : 
+{
+	"Page":"pg100002",
+	"Action" : "pg100002_001",
+	"Arguments" : 
+		{
+			"SecurityToken": "1111",
+			"Location" : "CHARLOTTE, NC"
+		}
+}
+
+# Page 3, Action 1 (Get Vendor Average Score) 
+# Arguments: 
+		Arguments:
+			SecurityToken (Mandatory),
+			VendorId (optional) [if arg not passed, return all vendor]
+#Call : 
+{
+	"Page":"pg100003",
+	"Action" : "pg100003_001",
+	"Arguments" : 
+		{
+			"SecurityToken": "1111",
+			"VendorId" : "Oracle"
+		}
+}
+
+# Page 4, Action 1 (Get Location Vendor Average Score) 
+# Arguments: 
+		Arguments:
+			SecurityToken (Mandatory),
+			Location (optional) [if arg not passed, return all Location],,
+			VendorId (optional) [if arg not passed, return all Vendor]
+#Call : 
+{
+	"Page":"pg100004",
+	"Action" : "pg100004_001",
+	"Arguments" : 
+		{
+			"SecurityToken": "1111",
+			"Location" : "Charlotte, NC", 
+			"VendorId" : "Oracle"
+		}
+}
+
+{"Page":"pg100005","Action" : "pg100005_001","Arguments" : {"SecurityToken": "1111"}}
+{"Page":"pg100006","Action" : "pg100006_001","Arguments" : {"SecurityToken": "1111"}}
+{"Page":"pg100001","Action" : "pg100001_001","Arguments" : {"SecurityToken": "1111"}}
+

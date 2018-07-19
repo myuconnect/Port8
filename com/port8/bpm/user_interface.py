@@ -103,49 +103,69 @@ class Interface(object, metaclass=Singleton):
 		except Exception as error:
 			raise error
 
-	def getOverallAvgScore(self):
+	def getOverallAvgScore(self, args):
 		try:
 			#validating security credential
-			myScore = self.ui_util._InterfaceUtil__getAvgScore()
+			myScore = self.ui_util._InterfaceUtil__getAvgScore(args)
 			return myScore
 
 		except Exception as error:
 			raise error
 
-	def getLocAvgScore(self):
+	def getLocAvgScore(self, args):
 		try:
 			#validating security credential
-			dbResult = self.ui_util._InterfaceUtil__getAvgLocScore()
+			dbResult = self.ui_util._InterfaceUtil__getAvgLocScore(args)
 			return dbResult
 
 		except Exception as error:
 			raise error
 
-	def getVendorAvgScore(self):
+	def getVendorAvgScore(self, args):
 		try:
 			#validating security credential
 			#Avg Vendor score
-			dbResult = self.ui_util._InterfaceUtil__getAvgVendorScore()
+			dbResult = self.ui_util._InterfaceUtil__getAvgVendorScore(args)
 			return dbResult
 
 		except Exception as error:
 			raise error
 
-	def getLocVendorAvgScore(self):
+	def getLocVendorAvgScore(self, args):
 		try:
 			#validating security credential
 			#Avg Loc Vendor score
-			dbResult = self.ui_util._InterfaceUtil__getAvgLocVendorScore()
+			dbResult = self.ui_util._InterfaceUtil__getAvgLocVendorScore(args)
 			return dbResult
 
 		except Exception as error:
 			raise error
 
-	def getHostAvgScore(self, arguments = None):
+	def getHostInfo(self, args):
 		try:
 			#validating security credential
 			#Avg Host score
-			dbResult = self.ui_util._InterfaceUtil__getAvgHostScore(arguments)
+			dbResult = self.ui_util._InterfaceUtil__getAvgHostInfo(args)
+			return dbResult
+
+		except Exception as error:
+			raise error
+
+	def getHostAvgScore(self, args):
+		try:
+			#validating security credential
+			#Avg Host score
+			dbResult = self.ui_util._InterfaceUtil__getAvgHostScore(args)
+			return dbResult
+
+		except Exception as error:
+			raise error
+
+	def getHostInfo(self, args):
+		try:
+			#validating security credential
+			#get host information
+			dbResult = self.ui_util._InterfaceUtil__getHostInfo(args)
 			return dbResult
 
 		except Exception as error:

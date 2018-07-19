@@ -95,6 +95,12 @@ class Utility(object, metaclass=Singleton):
         # return missing key (passed in argKeyList) from argDict
         return set(argTargetList) - set(argKeyList)
 
+    def removeEmptyKeyFromDict(self, argDict):
+        myArgDict = self.getACopy(argDict)
+        myAllEmptykeys = self.getEmptyKeyFromDict(myArgDict)
+        myArgDict = self.removeKeyFromDict(myAllEmptykeys, myArgDict)
+        return myArgDict
+
     def valRequiredArg(self, argumentDictArg, keyListArg, ignoreListArgs = None): 
         ''' 
             Description:    
@@ -113,6 +119,10 @@ class Utility(object, metaclass=Singleton):
         myValResult = self.globals.UnSuccess
         myMissingArgs = []
         myValMessage = ''
+
+        if not isinstance(argumentDictArg, dict):
+            myValMessage = 'Argument must be type of dict'
+            return myValResult, myMissingArgs, myValMessage
 
         mykeyListArg = copy.deepcopy(keyListArg)
         myignoreListArgs = copy.deepcopy(ignoreListArgs)
@@ -501,6 +511,7 @@ class Utility(object, metaclass=Singleton):
         return argRequestDict
 
     # Argument validation
+
 
     def valArguments(self, argKeyList, argDict):
         '''

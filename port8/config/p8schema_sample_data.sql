@@ -32,19 +32,21 @@ insert into p$ui_page (
     ('pg100002','Location score summary','Location average score','ACTIVE'),
     ('pg100003','Vendor score summary','Vendor average score','ACTIVE'),
     ('pg100004','Location Vendor score summary','Location Vendor average score','ACTIVE'),
-    ('pg100005','Host score summary','Host average score (All,Location,Vendor,LocVendor','ACTIVE'),
-    ('pg100006','Tenant score summary','Tenant score (All,Location,Vendor,LocVendor, Host','ACTIVE');
+    ('pg100005','Host score summary','Host average score (All,Location,Vendor,LocVendor)','ACTIVE'),
+    ('pg100006','Tenant score summary','Tenant score (All,Location,Vendor,LocVendor, Host)','ACTIVE'),
+    ('pg100007','Host Search','Host Search','ACTIVE');
 
 insert into p$ui_action (
     action_id, page_id, action_name, action_details, action_status,
     bpm_library, bpm_class, bpm_method, bpm_arguments, bpm_call_json, bpm_status)
     values
-    ('act_pg100001_001','pg100001','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getOverallAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getOverallAvgScore","args":[]}', 'ACTIVE'),
-    ('act_pg100002_001','pg100002','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocAvgScore","args":[]}', 'ACTIVE'),
-    ('act_pg100003_001','pg100003','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getVendorAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getVendorAvgScore","args":[]}', 'ACTIVE'),
-    ('act_pg100004_001','pg100004','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocVendorAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocVendorAvgScore","args":[]}', 'ACTIVE'),
-    ('act_pg100005_001','pg100005','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getHostAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostAvgScore","args":[]}', 'ACTIVE'),
-    ('act_pg100006_001','pg100006','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getHostTenantScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostTenantScore","args":[]}', 'ACTIVE');
+    ('pg100001_001','pg100001','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getOverallAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getOverallAvgScore","args":[]}', 'ACTIVE'),
+    ('pg100002_001','pg100002','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocAvgScore","args":[]}', 'ACTIVE'),
+    ('pg100003_001','pg100003','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getVendorAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getVendorAvgScore","args":[]}', 'ACTIVE'),
+    ('pg100004_001','pg100004','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocVendorAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocVendorAvgScore","args":[]}', 'ACTIVE'),
+    ('pg100005_001','pg100005','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getHostAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostAvgScore","args":[]}', 'ACTIVE'),
+    ('pg100006_001','pg100006','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getHostTenantScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostTenantScore","args":[]}', 'ACTIVE'),
+    ('pg100007_001','pg100007','SEARCH','Search Host','ACTIVE','com.port8.bpm.user_interface','Interface','getHostInfo',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostInfo","args":[]}', 'ACTIVE');
 
 insert into p$security_policy (
     security_policy_id, target, status, start_date, end_time, comments
