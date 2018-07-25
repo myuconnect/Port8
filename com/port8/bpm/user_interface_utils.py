@@ -13,8 +13,8 @@ class InterfaceUtil(object, metaclass=Singleton):
 		self.infra = RestInfra()
 		self.logger = self.infra.Logger
 			
-		self.repDB = MysqlUtil(self.logger)
-		self.repConn = self.repDB.getRepDBConnection()
+		self.mySqlUtil = MysqlUtil(self.logger)
+		self.repConn = self.mySqlUtil.getRepDBConnection()
 
 	def __getAvgScore(self, args):
 		'''
@@ -33,7 +33,7 @@ class InterfaceUtil(object, metaclass=Singleton):
 				return myResponse
 
 			# Average score
-			dbResult = self.repDB.execSelectSql(\
+			dbResult = self.mySqlUtil.execSelectSql(\
 				Conn = self.repConn, SqlText = self.globals.avgScoreSql, SqlArgs=None, SqlOutput = self.globals.SqlOutput['Dict'])
 
 			myScore = float()
@@ -69,11 +69,11 @@ class InterfaceUtil(object, metaclass=Singleton):
 				#raise InvalidArguments(myValResult[2])
 
 			if not ('Location' in args):
-				dbResult = self.repDB.execSelectSql(\
+				dbResult = self.mySqlUtil.execSelectSql(\
 					Conn = self.repConn, SqlText = self.globals.getAllLocAvgScoreSql, SqlArgs = args, SqlOutput = self.globals.SqlOutput['Dict'])
 			else:
 				# will pass args
-				dbResult = self.repDB.execSelectSql(\
+				dbResult = self.mySqlUtil.execSelectSql(\
 					Conn = self.repConn, SqlText = self.globals.getALocAvgScoreSql, SqlArgs = args, SqlOutput = self.globals.SqlOutput['Dict'])
 			myData = []
 
@@ -115,79 +115,94 @@ class InterfaceUtil(object, metaclass=Singleton):
 				myResponse = self.utility.buildResponse(self.globals.UnSuccess, myValResult[2])
 				return myResponse
 
-			myDynaSql = self.globals.getHostInfoSql
+			mySelectColList = self.globals.getHostInfoSql
+			mySelectTabList = self.globals.getHostDetailsFromClause
 
-			if 'HostName' in myArguments:
-				myCriteria = ''.join(['host_name = %(HostName)s'])
-				#myArguments.update({'HostName' : myArguments['HostName']})
+			if 'HostName' or 'HostId' in myArguments:
+				if 'HostName' in myArguments:
+					myCriteria = ''.join([' host_name = %(HostName)s'])
 
-			if 'HostId' in myArguments:
-				if myCriteria:
-					myCriteria = ''.join([myCriteria,' and ', 'host_id = %(HostId)s'])
-				else:
-					myCriteria = ''.join(['host_id = %(HostId)s'])
-				#myArguments.update({'HostId' : myArguments['HostId']})
+				else 'HostId' in myArguments:
+					myCriteria = ''.join([' host_id = %(HostId)s'])
 
-			if 'Location' in myArguments:
-				if myCriteria:
-					myCriteria = ''.join([myCriteria,' and ', 'dc_info = %(Location)s'])
-				else:
-					myCriteria = ''.join(['dc_info = %(Location)s'])
-				#myArguments.update({'Location' : myArguments['Location']})
+			else:
+				if 'VendorId' in myArguments:
+					if not self.util.getValCntInList(mySelectTabList, 'p$ht_tenant')
+						mySelectTabList.apend('p$ht_tenant tenant')
+						mySelectColList = ''.join(', tenant.version, tenant.tenant_name')
 
-			#print('Args',myArguments)
-			if 'OS' in myArguments:
-				myOS = myOSVer = None
+					myCriteria = ''.join([' tenant.tenant_vendor = %(VendorId)s'])
 
-				if (isinstance(myArguments['OS'], list) or isinstance(myArguments['OS'], tuple)) and len(myArguments['OS'] == 2):
-					myOS = myArguments['OS'][0]
-					myOSVer = myArguments['OS'][1]
-					myArguments.update({'OS' : myOS, 'OSVersion' : myOSVer})
-				elif (isinstance(myArguments['OS'], list) or isinstance(myArguments['OS'], tuple)) and len(myArguments['OS'] == 1):
-					myOS = myArguments['OS'][0]
-					myArguments.update({'OS' : myOS})
-				else:
-					myOS  = myArguments['OS']
-					myArguments.update({'OS' : myOS})
+				# Vendor product criteria
+				if 'Product' in myArguments:
+					if not self.util.getValCntInList(mySelectTabList, 'p$ht_tenant')
+						mySelectTabList.apend('p$ht_tenant tenant')
+						mySelectColList = ''.join(', tenant.version TENANT_VERSION, tenant.tenant_name TENANT_NAME')
 
-				if myCriteria: 
-					if myOS:
-						myCriteria = ''.join([myCriteria,' and ', 'OS = %(OS)s'])
+					if myCriteria:
+						myCriteria = ''.join([myCriteria, 'and ', ' tenant.vendor_prod_name = %(Product)s'])
+					else:
+						myCriteria = ''.join([myCriteria, ' tenant.vendor_prod_name = %(Product)s'])
 
-					if myOSVer:
-						myCriteria = ''.join([myCriteria,' and ', 'OSVersion = %(OSVersion)s'])
-				else:
-					if myOS:
-						myCriteria = ''.join(['OS = %(OS)s'])
+				# Location/DC_INFO criteria
+				if 'Location' in myArguments:
+					if myCriteria:
+						myCriteria = ''.join([myCriteria,' and ', 'dc_info = %(Location)s'])
+					else:
+						myCriteria = ''.join(['dc_info = %(Location)s'])
+					#myArguments.update({'Location' : myArguments['Location']})
 
-					if myOSVer:
-						myCriteria = ''.join([myCriteria, ' and ', 'OSVersion = %(OSVersion)s'])
+				#OS criteria
+				if 'OS' in myArguments:
+					myOS = myOSVer = None
 
-			#Physical Mem
-			if 'PhysicalMem' in myArguments:
-				myPhysMem = myPhysMemOper = None
+					if (isinstance(myArguments['OS'], list) or isinstance(myArguments['OS'], tuple)) and len(myArguments['OS'] == 2):
+						myOS = myArguments['OS'][0]
+						myOSVer = myArguments['OS'][1]
+						myArguments.update({'OS' : myOS, 'OSVersion' : myOSVer})
+					elif (isinstance(myArguments['OS'], list) or isinstance(myArguments['OS'], tuple)) and len(myArguments['OS'] == 1):
+						myOS = myArguments['OS'][0]
+						myArguments.update({'OS' : myOS})
+					else:
+						myOS  = myArguments['OS']
+						myArguments.update({'OS' : myOS})
 
-				if len(myArguments['PhysicalMem'] == 2):
-					myPhysMem = myArguments['PhysicalMem'][0]
-					myPhysMemOper = myArguments['OS'][1]
-				elif len(myArguments['OS'] == 1):
-					myPhysMem = myArguments['OS'][0]
-					myPhysMemOper = ' = '
-				else:
-					myPhysMem  = myArguments['OS']
-					myPhysMemOper = ' = '
+					if myCriteria: 
+						if myOS:
+							myCriteria = ''.join([myCriteria,' and ', 'OS = %(OS)s'])
 
-				myArguments.update({'PhyscialMem' : myPhysMem})
-				if myCriteria:
-					myCriteria = ''.join([myCriteria,' and ', 'physical_memory_mb ' , myPhysMemOper, ' %(PhysicalMem)s'])
-				else:					
-					myCriteria = ''.join(['physical_memory_mb ' , myPhysMemOper, ' %(PhysicalMem)s'])
+						if myOSVer:
+							myCriteria = ''.join([myCriteria,' and ', 'OSVersion = %(OSVersion)s'])
+					else:
+						if myOS:
+							myCriteria = ''.join(['OS = %(OS)s'])
 
-			if myCriteria:
-				myDynaSql = ''.join([myDynaSql, ' where ', myCriteria])
+						if myOSVer:
+							myCriteria = ''.join([myCriteria, ' and ', 'OSVersion = %(OSVersion)s'])
+
+				if 'PhysicalMem' in myArguments:
+					myPhysMem = myPhysMemOper = None
+
+					if len(myArguments['PhysicalMem'] == 2):
+						myPhysMem = myArguments['PhysicalMem'][0]
+						myPhysMemOper = myArguments['OS'][1]
+					elif len(myArguments['OS'] == 1):
+						myPhysMem = myArguments['OS'][0]
+						myPhysMemOper = ' = '
+					else:
+						myPhysMem  = myArguments['OS']
+						myPhysMemOper = ' = '
+
+					myArguments.update({'PhyscialMem' : myPhysMem})
+					if myCriteria:
+						myCriteria = ''.join([myCriteria,' and ', 'physical_memory_mb ' , myPhysMemOper, ' %(PhysicalMem)s'])
+					else:					
+						myCriteria = ''.join(['physical_memory_mb ' , myPhysMemOper, ' %(PhysicalMem)s'])
+
+			myDynaSql = self.mySqlUtil.buildDynaSql(mySelectColList, mySelectTabList, myCriteria)
 
 			print('sql',myDynaSql, myArguments)
-			dbResult = self.repDB.execSelectSql(\
+			dbResult = self.mySqlUtil.execSelectSql(\
 				Conn = self.repConn, SqlText = myDynaSql, SqlArgs = myArguments, SqlOutput = self.globals.SqlOutput['Dict'])
 
 			myHostData = []
@@ -201,6 +216,13 @@ class InterfaceUtil(object, metaclass=Singleton):
 						"PhysicalMemMB" : host['PHYSICAL_MEMORY_MB'], "SwapMemMB" : host['SWAP_MEMORY_MB'],
 						"IPAddress" : host['IP_ADDRESSES'],
 						'AvgScore' : round(host['AVG_SCORE'],2), "LastScan" : host["LAST_SCAN"], "LastScanTime" : host["LAST_SCAN_TIME"]}
+					
+					if 'TENANT_NAME' in host:
+						myData.update({'TenantName' : host['TENANT_NAME']})
+
+					if 'TENANT_VERSION' in host:
+						myData.update({'TenantVersion' : host['TENANT_VERSION']})
+
 					myHostData.append(myData)
 				myResponse = self.utility.buildResponse(self.globals.Success, self.globals.Success, myHostData)
 			else:
@@ -260,7 +282,7 @@ class InterfaceUtil(object, metaclass=Singleton):
 				myArguments = None
 
 			print('Sql, args >>> ',mySql, myArguments)
-			dbResult = self.repDB.execSelectSql(\
+			dbResult = self.mySqlUtil.execSelectSql(\
 				Conn = self.repConn, SqlText = mySql, SqlArgs = myArguments, SqlOutput = self.globals.SqlOutput['Dict'])
 
 			myHostData = []
@@ -285,7 +307,7 @@ class InterfaceUtil(object, metaclass=Singleton):
 	def __getAllTenantScore(self):
 		try:
 			# Average location score
-			dbResult = self.repDB.execSelectSql(\
+			dbResult = self.mySqlUtil.execSelectSql(\
 				Conn = self.repConn, SqlText = self.globals.hostTenantScoreSql, SqlArgs = None, SqlOutput = self.globals.SqlOutput['Dict'])
 
 			myData = list()
@@ -340,7 +362,7 @@ class InterfaceUtil(object, metaclass=Singleton):
 				mySql = self.globals.getAllVendorProdAvgScoreSql
 				myArguments = None
 
-			dbResult = self.repDB.execSelectSql(\
+			dbResult = self.mySqlUtil.execSelectSql(\
 				Conn = self.repConn, SqlText = mySql, SqlArgs = myArguments, SqlOutput = self.globals.SqlOutput['Dict'])
 
 			myData = []
@@ -373,7 +395,6 @@ class InterfaceUtil(object, metaclass=Singleton):
 
 		except Exception as error:
 			raise
-
 
 	def __getAvgLocVendorScore(self, args):
 		'''
@@ -409,7 +430,7 @@ class InterfaceUtil(object, metaclass=Singleton):
 				mySql = self.globals.getAllLocVendorAvgScoreSql
 				myArguments = None
 
-			dbResult = self.repDB.execSelectSql(\
+			dbResult = self.mySqlUtil.execSelectSql(\
 				Conn = self.repConn, SqlText = mySql, SqlArgs = myArguments, SqlOutput = self.globals.SqlOutput['Dict'])
 
 			myData = []
@@ -511,7 +532,7 @@ class InterfaceUtil(object, metaclass=Singleton):
 			else:
 				myScanId = scanId
 
-				dbResult = self.repDB.execSelectSql(self.repConn, self.globals.getTenantScanSummarySql) 			
+				dbResult = self.mySqlUtil.execSelectSql(self.repConn, self.globals.getTenantScanSummarySql) 			
 		except Exception as e:
 			raise e
 
@@ -525,7 +546,7 @@ class InterfaceUtil(object, metaclass=Singleton):
 		'''
 		try:
 			mySqlArgs = {'TenantId' : TenantId}
-			dbResult = self.repDB.execSelectSql(\
+			dbResult = self.mySqlUtil.execSelectSql(\
 				Conn = self.repConn, SqlText = self.globals.getLatestTenantScansSql, SqlArgs = TenantId, SqlOutput = self.globals.SqlOutput['Dict'])
 			if dbResult['Status'] == self.globals.Success:
 				# if we got data, we need to extract dict from tuple
@@ -537,6 +558,9 @@ class InterfaceUtil(object, metaclass=Singleton):
 		except Exception as e:
 			raise e
 
+	###
+	### Host/Tenant Details
+	#def __getHostDetails(self, args):
 
 
 if __name__ == "__main__":

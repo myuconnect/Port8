@@ -34,7 +34,7 @@ insert into p$ui_page (
     ('pg100004','Location Vendor score summary','Location Vendor average score','ACTIVE'),
     ('pg100005','Host score summary','Host average score (All,Location,Vendor,LocVendor)','ACTIVE'),
     ('pg100006','Tenant score summary','Tenant score (All,Location,Vendor,LocVendor, Host)','ACTIVE'),
-    ('pg100007','Host Search','Host Search','ACTIVE');
+    ('pg100007','Host Details','Host Search','ACTIVE');
 
 insert into p$ui_action (
     action_id, page_id, action_name, action_details, action_status,
@@ -46,7 +46,7 @@ insert into p$ui_action (
     ('pg100004_001','pg100004','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocVendorAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocVendorAvgScore","args":[]}', 'ACTIVE'),
     ('pg100005_001','pg100005','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getHostAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostAvgScore","args":[]}', 'ACTIVE'),
     ('pg100006_001','pg100006','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getHostTenantScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostTenantScore","args":[]}', 'ACTIVE'),
-    ('pg100007_001','pg100007','SEARCH','Search Host','ACTIVE','com.port8.bpm.user_interface','Interface','getHostInfo',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostInfo","args":[]}', 'ACTIVE');
+    ('pg100007_001','pg100007','DISP_LANDING','Display host details','ACTIVE','com.port8.bpm.user_interface','Interface','getHostInfo',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostInfo","args":[]}', 'ACTIVE');
 
 insert into p$security_policy (
     security_policy_id, target, status, start_date, end_time, comments

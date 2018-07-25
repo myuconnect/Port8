@@ -125,13 +125,16 @@ class Global(object, metaclass=Singleton):
             where dc_info = %(Location)s \
             group by dc_info '
 
-        self.getHostInfoSql = 'select host.host_id"HOST_ID", host.host_name "HOST", \
+        self.getHostDetailsCol = 'select host.host_id"HOST_ID", host.host_name "HOST", \
                 host.location "PHYSICAL_LOC", host.dc_info "LOCATION", \
                 host.os "OS", host.os_version "OSVersion", host.os_release "OS_RELEASE", host.processor "PROCESSOR", \
                 host.phys_memory_mb "PHYSICAL_MEMORY_MB", host.swap_memory_mb "SWAP_MEMORY_MB", \
                 host.ip_addresses "IP_ADDRESSES", \
                 host.last_scan_score "AVG_SCORE", host.last_scan_id "LAST_SCAN", host.last_scan_time "LAST_SCAN_TIME" \
             from p$ht_info host'
+
+        self.getHostDetailsFromClause = ['p$ht_info host']
+
 
         self.getAllHostScoreSql = 'select host.host_id"HOST_ID", host_name "HOST", dc_info "LOCATION", last_scan_score "AVG_SCORE", last_scan_id "LAST_SCAN", last_scan_time "LAST_SCAN_TIME" \
             from p$ht_info host'

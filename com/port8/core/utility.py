@@ -61,15 +61,6 @@ class Utility(object, metaclass=Singleton):
     def joinListContents(self, listArg, listSep):
         return listSep.join(listArg)
 
-    def isList(self, argValue):
-        try:
-            if isinstance(argValue,list): 
-                return True
-            else:
-                return False
-        except Exception as error:
-            return False
-
     def removeEmptyValueKeyFromDict(self, argDict):
         # removes key if it has empty or 0 value
         myMainArgData = self.getACopy(argDict)
@@ -100,6 +91,43 @@ class Utility(object, metaclass=Singleton):
         myAllEmptykeys = self.getEmptyKeyFromDict(myArgDict)
         myArgDict = self.removeKeyFromDict(myAllEmptykeys, myArgDict)
         return myArgDict
+
+    # List/Array util
+
+    def isList(self, argValue):
+        try:
+            if isinstance(argValue,list): 
+                return True
+            else:
+                return False
+        except Exception as error:
+            return False
+
+    # return all ocurrence index of matched value
+    def getIndxValInList(self, argList, argValue):
+        try:
+            if isinstance(argList, list):
+                return [indx for indx, val in enumerate(argList) if val == argValue]
+        except Exception as error:
+            return None
+
+    # return index of 1st occurrence of matched value
+    def getValCntInList(self, argList, argValue):
+        try:
+            totMatchedCnt = self.getIndxValInList(argList, argValue)
+        except Exception as error:
+            return None
+
+    # return all ocurrence index of matched value
+    def get1stIndxValInList(self, argList, argValue):
+        try:
+            if isinstance(argList, list):
+                allMatchedIndex = self.getIndxValInList(argList, argValue)
+                if allMatchedIndex:
+                    return allMatchedIndex[0]
+                    
+        except Exception as error:
+            return None
 
     def valRequiredArg(self, argumentDictArg, keyListArg, ignoreListArgs = None): 
         ''' 

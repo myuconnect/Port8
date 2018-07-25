@@ -151,6 +151,23 @@ class MysqlUtil(object, metaclass=Singleton):
 		sqlArgMarker = ', '.join(list(map(lambda x: marker, args)))
 		return sqlText % sqlArgMarker
 
+	def buildDynaSql(self, colList, tableList, criteria):
+		if colList:
+			mySql = colList
+
+			# adding tables to sql 
+			for indx, table in enumerate(tableList):
+				if indx > 0:
+					# found more than one table, we need to add ',' in from clause to seperate tables
+					mySql = ''.join([mySql, ' , ', table ])
+				else:
+					mySql = ''.join([mySql, table ])
+
+			# adding where clause 
+			if criteria:
+				mySql = ''.join([mySql, ' ' , criteria])
+
+			return mySql
 if __name__ == "__main__":
 	import socket
 	mysql = MysqlUtil()
