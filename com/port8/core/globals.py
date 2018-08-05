@@ -131,7 +131,8 @@ class Global(object, metaclass=Singleton):
                 host.phys_memory_mb "PHYSICAL_MEMORY_MB", host.swap_memory_mb "SWAP_MEMORY_MB", \
                 host.ip_addresses "IP_ADDRESSES", \
                 host.last_scan_score "AVG_SCORE", host.last_scan_id "LAST_SCAN", host.last_scan_time "LAST_SCAN_TIME" \
-            from p$ht_info host'
+            '
+        #from p$ht_info host'
 
         self.getHostDetailsFromClause = ['p$ht_info host']
 

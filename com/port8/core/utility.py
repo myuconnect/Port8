@@ -37,7 +37,7 @@ class Utility(object, metaclass=Singleton):
         '''
         Description: Checks if request passed as dict had all the structure of Request template
         '''
-        print(reqDict, type(reqDict))
+        #print(reqDict, type(reqDict))
         if not isinstance(reqDict, dict):
             print("Request is not dict type")
             return False
@@ -103,18 +103,21 @@ class Utility(object, metaclass=Singleton):
         except Exception as error:
             return False
 
-    # return all ocurrence index of matched value
+    # return all ocurrence index of matched value in list
     def getIndxValInList(self, argList, argValue):
         try:
             if isinstance(argList, list):
-                return [indx for indx, val in enumerate(argList) if val == argValue]
+                return  [indx for indx, val in enumerate(argList) if val == argValue]
+
         except Exception as error:
             return None
 
     # return index of 1st occurrence of matched value
     def getValCntInList(self, argList, argValue):
         try:
-            totMatchedCnt = self.getIndxValInList(argList, argValue)
+            if isinstance(argList, list):
+                return argList.count(argValue)
+                
         except Exception as error:
             return None
 
@@ -122,10 +125,12 @@ class Utility(object, metaclass=Singleton):
     def get1stIndxValInList(self, argList, argValue):
         try:
             if isinstance(argList, list):
+                #print('argument is list, proceeding')
                 allMatchedIndex = self.getIndxValInList(argList, argValue)
+                #print('toal match >>', allMatchedIndex)
                 if allMatchedIndex:
                     return allMatchedIndex[0]
-                    
+
         except Exception as error:
             return None
 
@@ -797,6 +802,8 @@ class Utility(object, metaclass=Singleton):
             logger.ERROR(error_text)
         return error_text
 
+    ########################################################
+    #
 if __name__ == "__main__":
     util = Utility()
     # all argument must not have additional white space before and after the command

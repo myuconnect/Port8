@@ -277,4 +277,4 @@ class Interface(object, metaclass=Singleton):
 if __name__ == "__main__":
 	ui = Interface()
 	data = ui.getLandingPageData()
-	print(data)
+	#print(data)

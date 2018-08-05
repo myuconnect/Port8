@@ -1,5 +1,6 @@
 # UI Page and its associated action
 
+SET GLOBAL local_infile = 1;
 LOAD DATA LOCAL INFILE "/home/anil/app/port8/config/cis_11g_12c_latest.csv" INTO TABLE p8rep.p$secpol_ver_comp_ctrl
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'

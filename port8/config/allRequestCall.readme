@@ -36,7 +36,7 @@ PostMan URL :http://anil-HP-PAVILION-NOTEBOOK:5800/requestPost
 		Arguments:
 			SecurityToken (Mandatory),
 			VendorId (optional) [if arg not passed, return all vendor]
-#Call : 
+#Call Example: 
 {
 	"Page":"pg100003",
 	"Action" : "pg100003_001",
@@ -53,7 +53,7 @@ PostMan URL :http://anil-HP-PAVILION-NOTEBOOK:5800/requestPost
 			SecurityToken (Mandatory),
 			Location (optional) [if arg not passed, return all Location],,
 			VendorId (optional) [if arg not passed, return all Vendor]
-#Call : 
+#Call Example: 
 {
 	"Page":"pg100004",
 	"Action" : "pg100004_001",

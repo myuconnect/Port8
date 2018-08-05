@@ -98,7 +98,7 @@ class MysqlUtil(object, metaclass=Singleton):
 				mySqlOutput = self.globals.SqlOutput['Default']
 
 			# executing sql
-			print(mySqlText, mySqlArgs)
+			print('Executing sql >>>',mySqlText, mySqlArgs)
 			myDBcur = myDBConn.cursor(buffered=True)
 			totalRows = myDBcur.execute(mySqlText, mySqlArgs)
 
@@ -161,11 +161,11 @@ class MysqlUtil(object, metaclass=Singleton):
 					# found more than one table, we need to add ',' in from clause to seperate tables
 					mySql = ''.join([mySql, ' , ', table ])
 				else:
-					mySql = ''.join([mySql, table ])
+					mySql = ''.join([mySql, ' from ' , table ])
 
 			# adding where clause 
 			if criteria:
-				mySql = ''.join([mySql, ' ' , criteria])
+				mySql = ''.join([mySql, ' where ' , criteria])
 
 			return mySql
 if __name__ == "__main__":

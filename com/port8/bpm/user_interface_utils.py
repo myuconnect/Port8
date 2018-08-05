@@ -40,7 +40,7 @@ class InterfaceUtil(object, metaclass=Singleton):
 
 			if dbResult['Status'] == self.globals.Success:
 				myScore = round(dbResult['Data'][0]['AVG_SCORE'],2)
-				myData = [myScore]
+				myData = [{'AvgScore': myScore}]
 				myResponse = self.utility.buildResponse(self.globals.Success, self.globals.Success, myData)
 			else:
 				myResponse = self.utility.buildResponse(self.globals.UnSuccess, dbResult['Data'])
@@ -115,32 +115,36 @@ class InterfaceUtil(object, metaclass=Singleton):
 				myResponse = self.utility.buildResponse(self.globals.UnSuccess, myValResult[2])
 				return myResponse
 
-			mySelectColList = self.globals.getHostInfoSql
+			mySelectColList = self.globals.getHostDetailsCol
 			mySelectTabList = self.globals.getHostDetailsFromClause
 
-			if 'HostName' or 'HostId' in myArguments:
+			if self.utility.isKeyInDict(myArguments, 'HostId') or self.utility.isKeyInDict(myArguments, 'HostName'): 
+			#if 'HostName' or 'HostId' in myArguments:
 				if 'HostName' in myArguments:
 					myCriteria = ''.join([' host_name = %(HostName)s'])
 
-				else 'HostId' in myArguments:
+				elif 'HostId' in myArguments:
 					myCriteria = ''.join([' host_id = %(HostId)s'])
-
 			else:
+				print('Host arg is not found, looking for other arguments ..., table list >>>', mySelectTabList)
+				# building dynamic sql (adding table and column to main sql as argument passed)
 				if 'VendorId' in myArguments:
-					if not self.util.getValCntInList(mySelectTabList, 'p$ht_tenant')
-						mySelectTabList.apend('p$ht_tenant tenant')
-						mySelectColList = ''.join(', tenant.version, tenant.tenant_name')
+					if not self.utility.getValCntInList(mySelectTabList, 'p$ht_tenant tenant'):
+						mySelectTabList.append('p$ht_tenant tenant')
+						mySelectColList = ''.join([mySelectColList,', tenant.tenant_version TENANT_VERSION, \
+							tenant.tenant_name TENANT_NAME, tenant.tenant_vendor TENANT_VENDOR, tenant.vendor_prod_name VENDOR_PRODUCT'])
 
 					myCriteria = ''.join([' tenant.tenant_vendor = %(VendorId)s'])
 
 				# Vendor product criteria
 				if 'Product' in myArguments:
-					if not self.util.getValCntInList(mySelectTabList, 'p$ht_tenant')
-						mySelectTabList.apend('p$ht_tenant tenant')
-						mySelectColList = ''.join(', tenant.version TENANT_VERSION, tenant.tenant_name TENANT_NAME')
+					if not self.utility.getValCntInList(mySelectTabList, 'p$ht_tenant tenant'):
+						mySelectTabList.append('p$ht_tenant tenant')
+						mySelectColList = ''.join([mySelectColList,', tenant.tenant_version TENANT_VERSION, \
+							tenant.tenant_name TENANT_NAME, tenant.tenant_vendor TENANT_VENDOR, tenant.vendor_prod_name VENDOR_PRODUCT'])
 
 					if myCriteria:
-						myCriteria = ''.join([myCriteria, 'and ', ' tenant.vendor_prod_name = %(Product)s'])
+						myCriteria = ''.join([myCriteria, ' and ', ' tenant.vendor_prod_name = %(Product)s'])
 					else:
 						myCriteria = ''.join([myCriteria, ' tenant.vendor_prod_name = %(Product)s'])
 
@@ -199,9 +203,10 @@ class InterfaceUtil(object, metaclass=Singleton):
 					else:					
 						myCriteria = ''.join(['physical_memory_mb ' , myPhysMemOper, ' %(PhysicalMem)s'])
 
+			print('Criteria >>>', myCriteria)
 			myDynaSql = self.mySqlUtil.buildDynaSql(mySelectColList, mySelectTabList, myCriteria)
 
-			print('sql',myDynaSql, myArguments)
+			print('dynamic sql',myDynaSql, myArguments)
 			dbResult = self.mySqlUtil.execSelectSql(\
 				Conn = self.repConn, SqlText = myDynaSql, SqlArgs = myArguments, SqlOutput = self.globals.SqlOutput['Dict'])
 
@@ -217,9 +222,12 @@ class InterfaceUtil(object, metaclass=Singleton):
 						"IPAddress" : host['IP_ADDRESSES'],
 						'AvgScore' : round(host['AVG_SCORE'],2), "LastScan" : host["LAST_SCAN"], "LastScanTime" : host["LAST_SCAN_TIME"]}
 					
+					if 'TENANT_VENDOR' in host:	
+						myData.update({'TenantVendor' : host['TENANT_VENDOR']})
+					if 'VENDOR_PRODUCT' in host:	
+						myData.update({'VendorProduct' : host['VENDOR_PRODUCT']})
 					if 'TENANT_NAME' in host:
 						myData.update({'TenantName' : host['TENANT_NAME']})
-
 					if 'TENANT_VERSION' in host:
 						myData.update({'TenantVersion' : host['TENANT_VERSION']})
 
@@ -232,6 +240,20 @@ class InterfaceUtil(object, metaclass=Singleton):
 
 		except Exception as error:
 			raise
+		finally:
+			del myMandatoryArgs
+			del myOptionalArgs
+			del myCriteria
+			del myDynaSql
+			del myDynaSqlWhereClause
+			del myDynaSqlGroupByClause 
+			del myDynaSqlOrderByClause
+			del myArguments
+			del myValResult
+			del myResponse
+			del mySelectColList
+			del mySelectTabList
+
 
 	def __getAvgHostScore(self, args):
 		'''

@@ -333,7 +333,7 @@ class RestInfra(Infra, metaclass=Singleton):
         print("Loading factory method metadata")
         # need to load factory metadata somewhere else. this is callingg mysql and ,mysql is callin infra going in loop
         self.factoryMetadata = self.loadFactoryMetadata()
-        print('Factory metadata ',self.factoryMetadata)
+        #print('Factory metadata ',self.factoryMetadata)
         self.Logger.debug('this is test from Rest Infrastructure')
 
     def loadFactoryMetadata(self):
