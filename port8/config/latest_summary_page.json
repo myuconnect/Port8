@@ -1,0 +1,324 @@
+{
+  "VendorLocation": {
+    "Status": "Success",
+    "Message": "Success",
+    "Data": {
+      "AvgScore": "76.03",
+      "Summary": [
+        {
+          "Vendor": "Oracle",
+          "AvgScore": {
+            "Severity": {
+              "High": 70,
+              "Medium": 80,
+              "Low": 90
+            },
+            "Score": 70
+          },
+          "TotalServers": 82,
+          "Locations": [
+            {
+              "Location": "livingston,NJ",
+              "TotalServers": "25",
+              "AvgScore": {
+                "Severity": {
+                  "High": 70,
+                  "Medium": 80,
+                  "Low": 90
+                },
+                "Score": 70
+              }
+            },
+            {
+              "Location": "charlotte,NC",
+              "TotalAssets": "22",
+              "AvgScore": {
+                "high": 70,
+                "medium": 80,
+                "low": 90,
+                "total": 70
+              },
+              "Score": 70
+            },
+            {
+              "Location": "stamford,CT",
+              "TotalAssets": "35",
+              "AvgScore": {
+                "high": 70,
+                "medium": 80,
+                "low": 90,
+                "total": 70
+              }
+            }
+          ]
+        },
+        {
+          "Vendor": "MS",
+          "score": "84",
+          "locations": [
+            {
+              "location": "livingston,NJ",
+              "numberOfServers": "25",
+              "score": "76"
+            },
+            {
+              "location": "charlotte,NC",
+              "numberOfServers": "22",
+              "score": "82"
+            },
+            {
+              "location": "stamford,CT",
+              "numberOfServers": "35",
+              "score": "78"
+            }
+          ]
+        },
+        {
+          "Vendor": "DB2",
+          "score": "34",
+          "locations": [
+            {
+              "location": "livingston,NJ",
+              "numberOfServers": "25",
+              "score": "76"
+            },
+            {
+              "location": "charlotte,NC",
+              "numberOfServers": "22",
+              "score": "82"
+            },
+            {
+              "location": "stamford,CT",
+              "numberOfServers": "35",
+              "score": "78"
+            }
+          ]
+        },
+        {
+          "Vendor": "MangoDB",
+          "score": "86",
+          "locations": [
+            {
+              "location": "livingston,NJ",
+              "numberOfServers": "25",
+              "score": "76"
+            },
+            {
+              "location": "charlotte,NC",
+              "numberOfServers": "22",
+              "score": "82"
+            },
+            {
+              "location": "stamford,CT",
+              "numberOfServers": "35",
+              "score": "78"
+            }
+          ]
+        },
+        {
+          "Vendor": "HQL",
+          "score": "65",
+          "locations": [
+            {
+              "location": "livingston,NJ",
+              "numberOfServers": "25",
+              "score": "76"
+            },
+            {
+              "location": "charlotte,NC",
+              "numberOfServers": "22",
+              "score": "82"
+            },
+            {
+              "location": "stamford,CT",
+              "numberOfServers": "35",
+              "score": "78"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "locationVendor": {
+    "Status": "Success",
+    "Message": "Success",
+    "Data": {
+      "AvgScore": "50",
+      "summary": [
+        {
+          "location": "livingston,NJ",
+          "score": "76",
+          "vendors": [
+            {
+              "vendor": "DB2",
+              "numberOfServers": "25",
+              "score": "76"
+            },
+            {
+              "vendor": "Oracle",
+              "numberOfServers": "22",
+              "score": "82"
+            },
+            {
+              "vendor": "MangoDB",
+              "numberOfServers": "32",
+              "score": "62"
+            },
+            {
+              "vendor": "MS",
+              "numberOfServers": "35",
+              "score": "78"
+            }
+          ]
+        },
+        {
+          "location": "charlotte,NC",
+          "score": "84",
+          "vendors": [
+            {
+              "vendor": "DB2",
+              "numberOfServers": "25",
+              "score": "76"
+            },
+            {
+              "vendor": "Oracle",
+              "numberOfServers": "22",
+              "score": "82"
+            },
+            {
+              "vendor": "MangoDB",
+              "numberOfServers": "32",
+              "score": "62"
+            },
+            {
+              "vendor": "MS",
+              "numberOfServers": "35",
+              "score": "78"
+            }
+          ]
+        },
+        {
+          "location": "Dallas,TX",
+          "score": "34",
+          "vendors": [
+            {
+              "vendor": "DB2",
+              "numberOfServers": "25",
+              "score": "76"
+            },
+            {
+              "vendor": "Oracle",
+              "numberOfServers": "22",
+              "score": "82"
+            },
+            {
+              "vendor": "MangoDB",
+              "numberOfServers": "32",
+              "score": "62"
+            },
+            {
+              "vendor": "MS",
+              "numberOfServers": "35",
+              "score": "78"
+            }
+          ]
+        },
+        {
+          "location": "stamford,CT",
+          "score": "95",
+          "vendors": [
+            {
+              "vendor": "DB2",
+              "numberOfServers": "25",
+              "score": "76"
+            },
+            {
+              "vendor": "Oracle",
+              "numberOfServers": "22",
+              "score": "82"
+            },
+            {
+              "vendor": "MangoDB",
+              "numberOfServers": "32",
+              "score": "62"
+            },
+            {
+              "vendor": "MS",
+              "numberOfServers": "35",
+              "score": "78"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "hostDetail": [
+    {
+      "Instance Detail": {
+        "Status": "Success",
+        "Message": "Success",
+        "Data": {
+          "AvgScore": "76.03",
+          "summary": [
+            {
+              "hostName": "livds001",
+              "noOfInstances": "12",
+              "score": "76"
+            },
+            {
+              "hostName": "livds002",
+              "noOfInstances": "12",
+              "score": "72"
+            },
+            {
+              "hostName": "livds003",
+              "noOfInstances": "12",
+              "score": "86"
+            },
+            {
+              "hostName": "livds004",
+              "noOfInstances": "12",
+              "score": "66"
+            },
+            {
+              "hostName": "livds004",
+              "noOfInstances": "12",
+              "score": "82"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Instance Detail": {
+        "Status": "Success",
+        "Message": "Success",
+        "Data": {
+          "AvgScore": "76.03",
+          "summary": [
+            {
+              "instanceName": "instance1",
+              "score": "76"
+            },
+            {
+              "instanceName": "instance2",
+              "score": "72"
+            },
+            {
+              "instanceName": "instance3",
+              "score": "86"
+            },
+            {
+              "instanceName": "instance4",
+              "score": "66"
+            },
+            {
+              "instanceName": "instance4",
+              "score": "82"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

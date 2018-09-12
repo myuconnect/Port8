@@ -1,14 +1,7 @@
 {
-	"APP_NAME" : "port8", 
 	"APP_HOME" : "/home/anil/app/port8",
-	"APP_ENV" : "dev",
 	"BOOTSTRAP_FILE" : "/home/anil/app/port8/config/bootstrap.json",
 	"APP_LOG" : "/home/anil/app/port8/logs",
 	"APP_CONFIG" : "/home/anil/app/port8/config",
-	"VALIDATE_DIR_LIST" : [
-		{"APP_HOME":"/home/anil/app/port8"},
-		{"APP_LOG":"/home/anil/app/port8/logs"},
-		{"APP_CONFIG":"/home/anil/app/port8/config"}
-	],
 	"VALIDATE_FILE_LIST" : [{"APP_CONFIG":"/home/anil/app/port8/config/bootstrap.json"}]
 }

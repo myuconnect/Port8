@@ -1,4 +1,4 @@
-import os,sys,traceback,datetime,copy,random, importlib,time, ast
+import os,sys,traceback,datetime,copy,random, importlib,time, ast, platform
 from jsonschema import *
 
 from com.port8.core.singleton import Singleton
@@ -15,6 +15,9 @@ class Utility(object, metaclass=Singleton):
         self.globals = Global()
         self.myClass = self.__class__.__name__
         self.myPythonFile = os.path.basename(__file__)
+        self.uname = platform.uname()
+        self.os = platform.uname().system.upper()
+        self.host = platform.uname().node
 
         #self.myModuleLogger = logging.getLogger('uConnect.' +str(__name__) + '.' + self.myClass)
 
@@ -43,11 +46,11 @@ class Utility(object, metaclass=Singleton):
             return False
 
         myRequestTemplate = self.getACopy(self.globals.Template['Request'])
-        print('Request template >>>', str(myRequestTemplate))
+        #print('Request template >>>', str(myRequestTemplate))
         myReqStru = self.getDictStru(myRequestTemplate)
         myReqTemplateStru = self.getDictStru(reqDict)
-        print('Request structure (passed) >>>', myReqStru)
-        print('Request template structure (passed) >>>', myReqTemplateStru) 
+        #print('Request structure (passed) >>>', myReqStru)
+        #print('Request template structure (passed) >>>', myReqTemplateStru) 
         return myReqStru == myReqTemplateStru 
 
     def getDictStru(self, argDict):
@@ -485,7 +488,7 @@ class Utility(object, metaclass=Singleton):
             myAllArgs, _, _, myValues = inspect.getargvalues(myFrame)
             for myArg in myAllArgs:
                 if self.isEmptyKey(myValues[myArg]):
-                    raise com.uconnect.error.MissingArg('Argument [{arg}] is empty !!!'.format(arg=myArg))
+                    raise MissingArg('Argument [{arg}] is empty !!!'.format(arg=myArg))
 
             myAuth = {
                 'LoginId':argLoginId,
@@ -715,11 +718,12 @@ class Utility(object, metaclass=Singleton):
     def setEnv(self, envKey, envValue):
         os.environ[envKey] = envValue
 
-    ###################################
-    # OS Utility - OS Info
+    def getMyOsPid(self):
+        # returns current OS pid
+        return os.getpid()
 
     def getUname(self):
-        return os.uname()[:]
+        return platform.uname().system
     
     ###################################
     # OS Utility - Run os command
@@ -802,24 +806,23 @@ class Utility(object, metaclass=Singleton):
             logger.ERROR(error_text)
         return error_text
 
-    ########################################################
-    #
+'''
+Remove comment for testing only
 if __name__ == "__main__":
     util = Utility()
     # all argument must not have additional white space before and after the command
     #cmd = ['ls -ltr | wc -l']
     #data = util.runOsCmd(cmd)
     #print('output >>>' ,data)
-    '''
     mydata = ''
     data = util.loadTextFile('temp.txt','str')
     print(data, type(data))
     data = util.getLineForPattern('temp.txt','ne','ALL','ANYWHERE')
     print(data)
-    '''
     key = self.env.environment
     text = 'This is my text'
     etext = util.encrypt(key,text)
     dtext = util.decrypt(key,etext)
     print('enc',etext)
     print('dec',text)
+'''

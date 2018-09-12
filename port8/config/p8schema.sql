@@ -114,6 +114,7 @@ CREATE TABLE p$secpol_ver_comp_ctrl (
     disp_control_id         VARCHAR (10)            NOT NULL comment 'Display control id',
     control_title           VARCHAR (1000)          NOT NULL comment 'Scan Name description',
     comp_id                 VARCHAR (20)            NOT NULL comment 'Compoent to which this control belongs to',
+    severity                ENUM('9','5','1')      comment 'Severity of control High/Medium/Low',
     description             TEXT                             comment 'Detailed description of control',
     seq_order               INTEGER                 NOT NULL comment 'Seq order in which control of a given component to be assessed',
     rational                TEXT                             comment 'Ratonal of this control',
@@ -190,10 +191,12 @@ CREATE TABLE p$ht_info (
     commision_date          DATE                        comment 'Whent this host went live',
     decommision_date        DATE                        comment 'Whent this host was decommisioned',
     uptime_mins             INTEGER                 NOT NULL comment 'uptime in minutes',
-    last_scan_id            varchar (20)                     comment 'Last successful scan id',
-    last_scan_seq_id        INTEGER                          comment 'Last successful scan seq id',
-    last_scan_time          TIMESTAMP                        comment 'Last scan id timestamp',
-    last_scan_score         DOUBLE                           comment 'Average score of this host, reflects all tenant score'
+    scan_id                 varchar (20)                     comment 'Last successful scan id',
+    scan_time               TIMESTAMP                        comment 'Last scan id timestamp',
+    scan_score              DOUBLE                           comment 'Average score of this host (avg of all tenant score)',
+    sev_high_score          DOUBLE                           comment 'Avergae high severity percentage of last scan (avg of all tenant score)',
+    sev_med_score           DOUBLE                           comment 'Avergae med severity percentage of last scan (avg of all tenant score)',
+    sev_low_score           DOUBLE                           comment 'Avergae low severity percentage of last scan (avg of all tenant score)'
 );
 
 CREATE TABLE p$ht_tenant (
@@ -210,10 +213,12 @@ CREATE TABLE p$ht_tenant (
     start_date              DATE                    NOT NULL comment 'Start date of security scan for this tenant',
     end_date                DATE                    NOT NULL comment 'End date of security scan for this tenant (if end date is in past, score will not reflect in host score',
     sec_scan_hist           JSON                             comment 'Last 2 security scan run in json format "," for e.g. [{id:<>,date,when:<>,score:<> [{id:01012018,when:01-JAN-2015,score:95 100000, 102:01022018 090000',
-    last_scan_id            varchar (20)                     comment 'Last successful scan id',
-    last_scan_seq_id        INTEGER                          comment 'Last successful scan seq id',
-    last_scan_time          TIMESTAMP                        comment 'Last scan id timestamp',  
-    last_scan_score         DOUBLE                           comment 'scan score'
+    scan_id                 varchar (20)                     comment 'Last successful scan id',
+    scan_time               TIMESTAMP                        comment 'Last scan id timestamp',  
+    scan_score              DOUBLE                           comment 'Scan score',
+    sev_high_score          DOUBLE                           comment 'High severity percentage of last scan',
+    sev_med_score           DOUBLE                           comment 'Med severity percentage of last scan',
+    sev_low_score           DOUBLE                           comment 'Low severity percentage of last scan'
 );
 
 # Scan Details
@@ -258,12 +263,15 @@ CREATE TABLE p$ht_tenant_scan (
     tenant_id               VARCHAR(10)             NOT NULL,
     scan_id                 VARCHAR(20)             NOT NULL,
     scan_seq_id             INTEGER                 NOT NULL,
-    scan_output             TEXT                    comment 'Security scan output for this control',
-    scan_score              DOUBLE                  comment 'scan score',
-    scan_status             ENUM('SUCCESS','UNSUCCESS') comment 'scan status success or unsuccess',
-    scan_comments           TEXT                    comment 'Any comments',
-    tenant_enbaled_audit    TEXT                    comment 'All audit enabled for this tenant',
-    tenant_options_used     TEXT                    comment 'All option of tenant vendor in use e.g. Oracle partitioning etc.',
+    scan_output             TEXT                                comment 'Security scan output for this control',
+    scan_score              DOUBLE                              comment 'scan score',
+    sev_high_score          DOUBLE                              comment 'High severity percentage of scan',
+    sev_med_score           DOUBLE                              comment 'Med severity percentage of scan',
+    sev_low_score           DOUBLE                              comment 'Low severity percentage of scan',    
+    scan_status             ENUM('SUCCESS','UNSUCCESS')         comment 'scan status success or unsuccess',
+    scan_comments           TEXT                                comment 'Any comments',
+    tenant_enbaled_audit    TEXT                                comment 'All audit enabled for this tenant',
+    tenant_options_used     TEXT                                comment 'All option of tenant vendor in use e.g. Oracle partitioning etc.',
     scan_start_time         TIMESTAMP               NOT NULL,
     scan_end_time           TIMESTAMP               NOT NULL
 );
@@ -275,6 +283,7 @@ CREATE TABLE p$ht_tenant_scan_detail (
     scan_id                 VARCHAR(20)             NOT NULL,
     scan_seq_id             INTEGER                 NOT NULL,
     control_id              VARCHAR(20)             NOT NULL, 
+    severity                ENUM('9','5','1')      comment 'Severity of control High/Medium/Low as it was during scan',
     additional_info         TEXT                             comment 'any additional info used to validate this control for e.g. control is an excpetion (we need to put change#), should also include any exclusion including default exclusion',
     expect_display          VARCHAR(1000)           NOT NULL comment 'Expected Dispaly; expected output results of this scan (REMOTE_LISTENER should be set to SCAN_NAME:PORT)',
     output_display          VARCHAR(1000)           NOT NULL comment 'Output display heading For e.g. "Lsiting all ports in use"',

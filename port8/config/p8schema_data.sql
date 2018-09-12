@@ -1,7 +1,7 @@
 # UI Page and its associated action
 
 SET GLOBAL local_infile = 1;
-LOAD DATA LOCAL INFILE "/home/anil/app/port8/config/cis_11g_12c_latest.csv" INTO TABLE p8rep.p$secpol_ver_comp_ctrl
+LOAD DATA LOCAL INFILE "/home/anil/app/port8/config/cis_11g_12c_latest_01.csv" INTO TABLE p8rep.p$secpol_ver_comp_ctrl
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
@@ -14,7 +14,7 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(host_id,host_name,location,dc_info,mac_address,processor,total_sockets,cores_per_socket,thread_per_core,total_cpus,phys_memory_mb,swap_memory_mb,network_interface,ip_addresses,os,os_version,os_release,commision_date,decommision_date,uptime_mins,last_scan_id,last_scan_seq_id,last_scan_time,last_scan_score)
+(host_id,host_name,location,dc_info,mac_address,processor,total_sockets,cores_per_socket,thread_per_core,total_cpus,phys_memory_mb,swap_memory_mb,network_interface,ip_addresses,os,os_version,os_release,commision_date,decommision_date,uptime_mins,scan_id,scan_time,scan_score)
 ;
 
 LOAD DATA LOCAL INFILE "/home/anil/app/port8/config/host_tenant_csv.csv" INTO TABLE p8rep.p$ht_tenant
@@ -22,14 +22,14 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n' 
 IGNORE 1 LINES
-(tenant_id,host_id,tenant_type,tenant_name,tenant_vendor,vendor_prod_name,tenant_version,backup_policy_id,sec_policy_ver_id,start_date,end_date,last_scan_id,last_scan_seq_id,last_scan_time,last_scan_score)
+(tenant_id,host_id,tenant_type,tenant_name,tenant_vendor,vendor_prod_name,tenant_version,backup_policy_id,sec_policy_ver_id,start_date,end_date,scan_id,scan_time,scan_score)
 ;
 
 insert into p$ui_page (
     page_id, page_name, page_details, page_status
     )
     values
-    ('pg100001','Score main','Average score main','ACTIVE'),
+    ('HOME','Main Home','Home Page','ACTIVE'),
     ('pg100002','Location score summary','Location average score','ACTIVE'),
     ('pg100003','Vendor score summary','Vendor average score','ACTIVE'),
     ('pg100004','Location Vendor score summary','Location Vendor average score','ACTIVE'),
@@ -41,8 +41,10 @@ insert into p$ui_action (
     action_id, page_id, action_name, action_details, action_status,
     bpm_library, bpm_class, bpm_method, bpm_arguments, bpm_call_json, bpm_status)
     values
-    ('pg100001_001','pg100001','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getOverallAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getOverallAvgScore","args":[]}', 'ACTIVE'),
-    ('pg100002_001','pg100002','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocAvgScore","args":[]}', 'ACTIVE'),
+    ('HOME_DISP_LOC','HOME','DISP_LANDING','Display Location details','ACTIVE','com.port8.bpm.user_interface','Interface','getOverallAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getOverallAvgScore","args":[]}', 'ACTIVE'),
+    ('HOME_DISP_VENDOR','HOME','DISP_LANDING','Display Vendor','ACTIVE','com.port8.bpm.user_interface','Interface','getOverallAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getOverallAvgScore","args":[]}', 'ACTIVE'),
+    ('HOME_DISP_VENDLOC_HOST_DETAILS','HOME','Display all host for a given Vendor/Loc','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocAvgScore","args":[]}', 'ACTIVE'),
+    ('HOME_DISP_HOST_TENANT','HOME','Display all tenant(s) for a given host','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocAvgScore","args":[]}', 'ACTIVE'),
     ('pg100003_001','pg100003','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getVendorAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getVendorAvgScore","args":[]}', 'ACTIVE'),
     ('pg100004_001','pg100004','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getLocVendorAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getLocVendorAvgScore","args":[]}', 'ACTIVE'),
     ('pg100005_001','pg100005','DISP_LANDING','Display landing','ACTIVE','com.port8.bpm.user_interface','Interface','getHostAvgScore',NULL,'{"lib":"com.port8.bpm.user_interface","cls":"Interface","method":"getHostAvgScore","args":[]}', 'ACTIVE'),
@@ -256,34 +258,34 @@ insert into p$jobs_runtask_log (
 insert into p$ht_info (
     host_id, host_name, location, dc_info, os, os_version, os_release, total_sockets, cores_per_socket, thread_per_core, total_cpus,ip_addresses, 
     phys_memory_mb, swap_memory_mb, commision_date, decommision_date, uptime_mins, 
-    last_scan_id, last_scan_seq_id,last_scan_time, last_scan_score,mac_address,processor)
+    scan_id, scan_time, scan_score,mac_address,processor)
     values
     ('H20001', 'dev01.port8.com', 'floor:1b, cage : cage01, rack : rack01', "EAST - ATLANTA", "LINUX-RHEL","5.7", "1.2.3x3.64", 8,8,2,128,
-     '10.02.01.32',10240,1024, NULL, NULL,1200,'JOBSEC10001',1,'2018-01-01 10:00:00',68.11,'sh53.43.4343434','Genuine Intel' ),
+     '10.02.01.32',10240,1024, NULL, NULL,1200,'JOBSEC10001','2018-01-01 10:00:00',68.11,'sh53.43.4343434','Genuine Intel' ),
     ('H20002', 'dev02.port8.com', 'floor:1b, cage : cage01, rack : rack01', "EAST - ATLANTA", "LINUX-RHEL","5.7", "1.2.3x3.64", 8,8,2,128,
-     '10.02.05.33',10240,1024, NULL, NULL,1200,'JOBSEC10001',1,'2018-01-01 10:00:00', 75, 're78.443434','Genuine Intel'  ),
+     '10.02.05.33',10240,1024, NULL, NULL,1200,'JOBSEC10001','2018-01-01 10:00:00', 75, 're78.443434','Genuine Intel'  ),
     ('H20003', 'dev03.port8.com', 'floor:1b, cage : cage01, rack : rack01', "EAST - ATLANTA", "LINUX-RHEL","5.7", "1.2.3x3.64", 8,8,2,128,
-     '10.02.05.38',10240,1024, NULL, NULL,1200,'JOBSEC10001',1,'2018-01-01 10:00:00', 65 ,'5453.43.43434','Genuine Intel' ),
+     '10.02.05.38',10240,1024, NULL, NULL,1200,'JOBSEC10001','2018-01-01 10:00:00', 65 ,'5453.43.43434','Genuine Intel' ),
     ('H20004', 'dev04.port8.com', 'floor:1b, cage : cage01, rack : rack01', "EAST - ATLANTA", "LINUX-RHEL","5.7", "1.2.3x3.64", 8,8,2,128,
-     '10.03.05.72',10240,1024, NULL, NULL,1200,'JOBSEC10001',1,'2018-01-01 10:00:00', 60, 'gt89.43.43434','Genuine Intel' ),
+     '10.03.05.72',10240,1024, NULL, NULL,1200,'JOBSEC10001','2018-01-01 10:00:00', 60, 'gt89.43.43434','Genuine Intel' ),
     ('H20005', 'dev05.port8.com', 'floor:1b, cage : cage01, rack : rack01', "EAST - ATLANTA", "LINUX-RHEL","5.7", "1.2.3x3.64", 8,8,2,128,
-     '10.03.05.88', 10240,1024, NULL, NULL,1200,'JOBSEC10001',1,'2018-01-01 10:00:00', 90, 'uy99.43.43434','Genuine Intel' ),
+     '10.03.05.88', 10240,1024, NULL, NULL,1200,'JOBSEC10001','2018-01-01 10:00:00', 90, 'uy99.43.43434','Genuine Intel' ),
     ('H20006', 'dev06.port8.com', 'floor:1b, cage : cage01, rack : rack01', "EAST - ATLANTA", "LINUX-RHEL","5.7", "1.2.3x3.64", 8,8,2,128,
-     '10.03.05.99',10240,1024, NULL, NULL,1200,'JOBSEC10001',1,'2018-01-01 10:00:00', 78, 'j587.43.4563','Genuine Intel' ),
+     '10.03.05.99',10240,1024, NULL, NULL,1200,'JOBSEC10001','2018-01-01 10:00:00', 78, 'j587.43.4563','Genuine Intel' ),
     ('H20007', 'dev07.port8.com', 'floor:1b, cage : cage01, rack : rack01', "EAST - ATLANTA", "LINUX-RHEL","5.7", "1.2.3x3.64", 8,8,2,128,
-     '10.02.05.101',10240,1024,NULL, NULL,1200,'JOBSEC10001',1,'2018-01-01 10:00:00', 58, '1111.43.434278','Genuine Intel' );
+     '10.02.05.101',10240,1024,NULL, NULL,1200,'JOBSEC10001','2018-01-01 10:00:00', 58, '1111.43.434278','Genuine Intel' );
 
 insert into p$ht_tenant (
     tenant_id, host_id, tenant_type, tenant_name, tenant_vendor, vendor_prod_name,tenant_version, 
-    sec_policy_ver_id, start_date, end_date, last_scan_id, last_scan_seq_id, last_scan_time, last_scan_score  
+    sec_policy_ver_id, start_date, end_date, scan_id, scan_time, scan_score  
     )
     values
-    ('T200001','H20001','DB','DEV00001','ORACLE','ORACLE DATABASE','10.2.4','ORA_10G','2018-01-01','9999-12-31','JOBSEC10001',1,'2018-01-01 10:00:00',75),
-    ('T200002','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001',1,'2018-01-01 10:00:00',65),
-    ('T200003','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001',1,'2018-01-01 10:00:00',35),
-    ('T200004','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001',1,'2018-01-01 10:00:00',65),
-    ('T200005','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001',1,'2018-01-01 10:00:00',80),
-    ('T200006','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001',1,'2018-01-01 10:00:00',90),
-    ('T200007','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001',1,'2018-01-01 10:00:00',60),
-    ('T200008','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001',1,'2018-01-01 10:00:00',88),
-    ('T200009','H20001','OS','dev01.port8.com','REDHAT','LINUX-RHEL','6.11','RHEL-OS-6','2018-01-01','2029-12-31','JOBSEC10001',1,'2018-01-01 10:00:00',55);
+    ('T200001','H20001','DB','DEV00001','ORACLE','ORACLE DATABASE','10.2.4','ORA_10G','2018-01-01','9999-12-31','JOBSEC10001','2018-01-01 10:00:00',75),
+    ('T200002','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001','2018-01-01 10:00:00',65),
+    ('T200003','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001','2018-01-01 10:00:00',35),
+    ('T200004','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001','2018-01-01 10:00:00',65),
+    ('T200005','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001','2018-01-01 10:00:00',80),
+    ('T200006','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001','2018-01-01 10:00:00',90),
+    ('T200007','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001','2018-01-01 10:00:00',60),
+    ('T200008','H20001','DB','DEV00200','ORACLE','ORACLE DATABASE','11.2.4','ORA_11G','2018-01-01','2029-12-31','JOBSEC10001','2018-01-01 10:00:00',88),
+    ('T200009','H20001','OS','dev01.port8.com','REDHAT','LINUX-RHEL','6.11','RHEL-OS-6','2018-01-01','2029-12-31','JOBSEC10001','2018-01-01 10:00:00',55);

@@ -11,7 +11,7 @@ class Interface(object, metaclass=Singleton):
 		self.utility = Utility()
 		self.globals = Global()
 		self.infra = RestInfra()
-		self.logger = self.infra.Logger
+		self.logger = self.infra.logger
 			
 		self.ui_util = InterfaceUtil()
 		self.security = Security()
@@ -274,7 +274,10 @@ class Interface(object, metaclass=Singleton):
 	def addCtrlExclusion(self, **kwargs):
 		pass
 
+'''
+Uncomment it when testing
 if __name__ == "__main__":
 	ui = Interface()
 	data = ui.getLandingPageData()
 	#print(data)
+'''

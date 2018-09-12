@@ -1,7 +1,7 @@
-from com.port8.core.environment import Environment
-from com.port8.core.singleton import Singleton
-from com.port8.core.globals import Global
-from com.port8.core.utility import Utility
+from environment import Environment
+from singleton import Singleton
+from globals import Global
+from utility import Utility
 
 import os,sys,json,traceback,logging, logging.config
 

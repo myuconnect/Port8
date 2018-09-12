@@ -10,6 +10,7 @@ class Global(object, metaclass=Singleton):
         self.LogLocKey="LOG_LOC"
 
         #Infrastructure
+        self.bootStrapFile='port8_bootstrap.json'
         self.InfraLib = 'com.port8.core.infrastructure'
         self.Infrastructure = {'Rest':'RestInfra','Scheduler':'SchedInfra','Daemon':'DaemonInfra'}
         self.RestApiInfraKey = 'Rest'

@@ -11,7 +11,7 @@ class InterfaceUtil(object, metaclass=Singleton):
 		self.utility = Utility()
 		self.globals = Global()
 		self.infra = RestInfra()
-		self.logger = self.infra.Logger
+		self.logger = self.infra.logger
 			
 		self.mySqlUtil = MysqlUtil(self.logger)
 		self.repConn = self.mySqlUtil.getRepDBConnection()
@@ -542,8 +542,8 @@ class InterfaceUtil(object, metaclass=Singleton):
 			ScanId : optional (default is 'Latest')
 		'''
 		try:
-			if scanId == self.globals.latest:
-				latestScan = self.__getLastTenantScan(TenantId)
+			if ScanId == self.globals.latest:
+				dbResult = self.__getLastTenantScan(TenantId)
 				if dbResult['Status'] == self.globals.Success:
 					if dbResult['Data']:
 						myScanId = dbResult['Data']['SCAN_ID']
@@ -552,7 +552,7 @@ class InterfaceUtil(object, metaclass=Singleton):
 					raise ValueError('')
 				myScanId = dbResult['Data']['ScanId']
 			else:
-				myScanId = scanId
+				myScanId = ScanId
 
 				dbResult = self.mySqlUtil.execSelectSql(self.repConn, self.globals.getTenantScanSummarySql) 			
 		except Exception as e:
@@ -584,10 +584,10 @@ class InterfaceUtil(object, metaclass=Singleton):
 	### Host/Tenant Details
 	#def __getHostDetails(self, args):
 
-
+'''
+uncomment it when testing
 if __name__ == "__main__":
 	util = InterfaceUtil()
-	'''
 	avg = util.getAvgScore()
 	print(avg)
 	hostScore = util.getAvgHostScore()
@@ -598,6 +598,6 @@ if __name__ == "__main__":
 	print(vendorScore)
 	locVendScore = util.getAvgLocVendorScore()
 	print(locVendScore)
-	'''
 	#tenant_score = util._InterfaceUtil__getAllTenantScore()
 	#print(tenant_score)
+'''

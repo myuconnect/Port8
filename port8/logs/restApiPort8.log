@@ -50,3 +50,28 @@
 2018-08-05 11:48:47,610 - [Rest:__executeBPSPRocess]  INFO : executing method with arguments >>>[com.port8.bpm.user_interface.Interface.getOverallAvgScore {'SecurityToken': '1111'}]
 2018-08-05 11:48:47,611 - [Rest:__executeBPSPRocess]  DEBUG : results after execution >>> {'Status': 'Success', 'Message': 'Success', 'Data': [{'AvgScore': 76.03}]}
 2018-08-05 11:48:47,611 - [Rest:processRequest]  DEBUG : myResponse data >>> {'Status': 'Success', 'Message': 'Success', 'Data': [{'AvgScore': 76.03}]}
+2018-08-05 12:36:32,255 - [Rest:__init__]  DEBUG : this is test from Rest Infrastructure
+2018-08-05 14:25:26,850 - [Rest:__init__]  DEBUG : this is test from Rest Infrastructure
+2018-08-05 14:25:27,244 - [Rest:__init__]  DEBUG : this is test from Rest Infrastructure
+2018-08-05 14:25:30,533 - [Rest:processRequest]  DEBUG : arg received [{'Page': 'pg100002', 'Action': 'pg100002_001', 'Arguments': {'SecurityToken': '1111'}}]
+2018-08-05 14:25:30,533 - [Rest:processRequest]  DEBUG : validated request, its a valid request >>> {'Page': 'pg100002', 'Action': 'pg100002_001', 'Arguments': {'SecurityToken': '1111'}}
+2018-08-05 14:25:30,533 - [Rest:__findBPSProcess]  DEBUG : arg received [pg100002,pg100002_001]
+2018-08-05 14:25:30,534 - [Rest:__findBPSProcess]  DEBUG : found matching page [pg100002] in factory metdata
+2018-08-05 14:25:30,534 - [Rest:__findBPSProcess]  DEBUG : found matching action [pg100002_001] on page [pg100002] in factory metdata
+2018-08-05 14:25:30,534 - [Rest:__findBPSProcess]  DEBUG : BPM Json call found >>> {'cls': 'Interface', 'lib': 'com.port8.bpm.user_interface', 'args': [], 'method': 'getLocAvgScore'}
+2018-08-05 14:25:30,534 - [Rest:processRequest]  DEBUG : found, bpm process [{'cls': 'Interface', 'lib': 'com.port8.bpm.user_interface', 'args': [], 'method': 'getLocAvgScore'}]
+2018-08-05 14:25:30,534 - [Rest:__executeBPSPRocess]  DEBUG : arg received [com.port8.bpm.user_interface,Interface,getLocAvgScore,{'SecurityToken': '1111'}]
+2018-08-05 14:25:30,543 - [Rest:__executeBPSPRocess]  INFO : executing method with arguments >>>[com.port8.bpm.user_interface.Interface.getLocAvgScore {'SecurityToken': '1111'}]
+2018-08-05 14:25:30,545 - [Rest:__executeBPSPRocess]  DEBUG : results after execution >>> {'Status': 'Success', 'Message': 'Success', 'Data': [{'Location': 'CHARLOTTE, NC', 'AvgScore': 75.6}, {'Location': 'DENVER, CO', 'AvgScore': 80.64}, {'Location': 'EAST - ATLANTA', 'AvgScore': 70.59}]}
+2018-08-05 14:25:30,545 - [Rest:processRequest]  DEBUG : myResponse data >>> {'Status': 'Success', 'Message': 'Success', 'Data': [{'Location': 'CHARLOTTE, NC', 'AvgScore': 75.6}, {'Location': 'DENVER, CO', 'AvgScore': 80.64}, {'Location': 'EAST - ATLANTA', 'AvgScore': 70.59}]}
+2018-08-05 14:26:26,049 - [Rest:processRequest]  DEBUG : arg received [{'Page': 'pg100003', 'Action': 'pg100003_001', 'Arguments': {'SecurityToken': '1111'}}]
+2018-08-05 14:26:26,050 - [Rest:processRequest]  DEBUG : validated request, its a valid request >>> {'Page': 'pg100003', 'Action': 'pg100003_001', 'Arguments': {'SecurityToken': '1111'}}
+2018-08-05 14:26:26,050 - [Rest:__findBPSProcess]  DEBUG : arg received [pg100003,pg100003_001]
+2018-08-05 14:26:26,050 - [Rest:__findBPSProcess]  DEBUG : found matching page [pg100003] in factory metdata
+2018-08-05 14:26:26,050 - [Rest:__findBPSProcess]  DEBUG : found matching action [pg100003_001] on page [pg100003] in factory metdata
+2018-08-05 14:26:26,050 - [Rest:__findBPSProcess]  DEBUG : BPM Json call found >>> {'cls': 'Interface', 'lib': 'com.port8.bpm.user_interface', 'args': [], 'method': 'getVendorAvgScore'}
+2018-08-05 14:26:26,051 - [Rest:processRequest]  DEBUG : found, bpm process [{'cls': 'Interface', 'lib': 'com.port8.bpm.user_interface', 'args': [], 'method': 'getVendorAvgScore'}]
+2018-08-05 14:26:26,051 - [Rest:__executeBPSPRocess]  DEBUG : arg received [com.port8.bpm.user_interface,Interface,getVendorAvgScore,{'SecurityToken': '1111'}]
+2018-08-05 14:26:26,051 - [Rest:__executeBPSPRocess]  INFO : executing method with arguments >>>[com.port8.bpm.user_interface.Interface.getVendorAvgScore {'SecurityToken': '1111'}]
+2018-08-05 14:26:26,055 - [Rest:__executeBPSPRocess]  DEBUG : results after execution >>> {'Status': 'Success', 'Message': 'Success', 'Data': [{'Vendor': 'MICROSOFT', 'Products': [{'Product': 'MSSQL', 'AvgScore': 68.12}]}, {'Vendor': 'MONGO', 'Products': [{'Product': 'MONGO DATABASE', 'AvgScore': 73.5}]}, {'Vendor': 'ORACLE', 'Products': [{'Product': 'MYSQL', 'AvgScore': 80.43}, {'Product': 'ORACLE DATABASE', 'AvgScore': 74.34}]}, {'Vendor': 'REDHAT', 'Products': [{'Product': 'LINUX-RHEL', 'AvgScore': 55.0}]}]}
+2018-08-05 14:26:26,055 - [Rest:processRequest]  DEBUG : myResponse data >>> {'Status': 'Success', 'Message': 'Success', 'Data': [{'Vendor': 'MICROSOFT', 'Products': [{'Product': 'MSSQL', 'AvgScore': 68.12}]}, {'Vendor': 'MONGO', 'Products': [{'Product': 'MONGO DATABASE', 'AvgScore': 73.5}]}, {'Vendor': 'ORACLE', 'Products': [{'Product': 'MYSQL', 'AvgScore': 80.43}, {'Product': 'ORACLE DATABASE', 'AvgScore': 74.34}]}, {'Vendor': 'REDHAT', 'Products': [{'Product': 'LINUX-RHEL', 'AvgScore': 55.0}]}]}

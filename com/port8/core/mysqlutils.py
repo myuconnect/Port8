@@ -4,7 +4,7 @@ from mysql.connector import connect, errors
 from com.port8.core.singleton import Singleton
 #from com.port8.core.environment import Environment
 from com.port8.core.infrastructure import RestInfra
-from com.port8.core.loggingP8 import Logging
+#from com.port8.core.loggingP8 import Logging
 from com.port8.core.globals import Global
 from com.port8.core.utility import Utility
 from com.port8.core.error import *

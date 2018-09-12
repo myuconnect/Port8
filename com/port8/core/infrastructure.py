@@ -1,35 +1,31 @@
 from com.port8.core.environment import Environment
 from com.port8.core.singleton import Singleton
-from com.port8.core.loggingP8 import Logging
+#from com.port8.core.loggingP8 import Logging
 from com.port8.core.globals import Global
 from com.port8.core.utility import Utility
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from jsonref import JsonRef
 
-import traceback,sys,os,json, importlib
+import traceback,sys,os,json, importlib,traceback,logging, logging.config
 
 class Infra(object, metaclass=Singleton):
 
     def __init__(self):
 
-        # setting the Environment
         try:
-            '''
-            if not infraType or infraType not in ['REST','SCHEDULE','DAEMON']:
-                print('expectig valid infra type REST/SCHEDULE/DAMEON got {got}, exiting !!!'.format(got = infraType))
-                sys.exit(-1)
-            '''
+            #print('initializing env 1')
             self.env = Environment()
             self.globals = Global()
             self.util = Utility()
-            self.logging = Logging()
+            #self.logging = Logging()
 
             self.configLoc = self.env.appCfgLoc
-            #print(self.configLoc)
-            self.bootStrapFile = self.getBootStrapFile()
+            self.bootStrapFile = os.path.join(self.configLoc, self.globals.bootStrapFile)
+
             if not self.bootStrapFile:
-                raise ValueError('expecting valid bootstrap file, found NONE')
+                print('error: port8-infra10001, bootstrap error !!!')
+                sys.exit(-1)
 
             self.dbConfigData = {}
             self.daemonConfifData = {}
@@ -37,45 +33,17 @@ class Infra(object, metaclass=Singleton):
             self.restApiConfigData = {}
             self.agentConfigData = {}
 
-            #print(self.Env._Env__initData)
-            #print(self.Env._Env__EnvDetails)
-
             print("Loading bootstrap config....................".ljust(50),end='')
             self.__loadBootStrapConfig()
-            self.__loadSchema()
+            #self.jsonSchema = JsonRef.replace_refs(self.__bootStrapData['Main'])
+            #self.__loadSchema()
+            #self.jsonSchemaConfigData
 
             # ensuring all needed lib is available
             print("Checking all required libraries................".ljust(50),end='')
             self.__validateAllLib()
 
-            '''
-            self.Logger = \
-                self.logging.buildLoggingInfra(\
-                    self.loggingConfigData,\
-                    self.globals.LoggerName[infraType]['LogFile'],
-                    self.globals.LoggerName[infraType]['Name']
-                    )
-            '''
-            #self.Logger.debug('this is test from Infrastructure')
-
-            # ensure db is up and repository is abvailable
-            #print("Validating database............................".ljust(50),end='')
-            #self.__validateDb(infraType)
-            #self.db = self.__getNewConnection()
-
-            # loading DB schema
-            # populating json schema for database
-            '''
-            commenting follwoing line, will revisit later to implement jsonref for db
-            self.__loadDbJsonSchema()        
-            '''
-            #print("Loading logging config.........................".ljust(50),end='')
-            #self.logger = Logging(self.loggingConfigData)
-            #logger 
-            print("[infra started with OS pid {pid}]".format(pid=self.getMyOsPid()))
-
-            #self.db_dyna_sql = self.jsonSchema.get('Main').get('db_dyna_sql_call')
-            #self.myModuleLogger.info ('Infrastructure started with os pid [{pid}]'.format(pid=os.getpid()))
+            print("[infra started with OS pid {pid}]".format(pid=self.util.getMyOsPid()))
 
         except Exception as err:
 
@@ -86,8 +54,9 @@ class Infra(object, metaclass=Singleton):
             sys.exit(-1)
 
     def __loadBootStrapConfig(self):
-
-        # read bootstrap cnfig file
+        '''
+        Descrption: called internally, loads bootstrap config file in memory
+        '''
         try:
             self.__bootStrapData = json.load(open(self.bootStrapFile))
 
@@ -102,6 +71,7 @@ class Infra(object, metaclass=Singleton):
                 sys.exit(-1)
 
             #extracting module config information
+            #print(self.env.environment, self.__bootStrapData['Main']['Modules']['DB']['REPOSITORY'])
             if self.env.environment not in self.__bootStrapData['Main']['Modules']['DB']['REPOSITORY']:
                 print('[Error]\n     unable to find repository information for environment >> {env}'.format(env = self.env.environment))
                 sys.exit(-1)
@@ -123,7 +93,7 @@ class Infra(object, metaclass=Singleton):
             self.loggingConfigData = self.__bootStrapData['Main']['Modules']['Logging']
             self.restApiConfigData = self.__bootStrapData['Main']['Modules']['RestAPI']
             self.daemonConfigData  = self.__bootStrapData['Main']['Modules']['Daemon']
-            self.jsonSchemaConfigData  = self.__bootStrapData['Main']['Modules']['JsonSchema']
+            self.jsonSchemaConfigData  = self.__bootStrapData['Main']['JsonSchema']
 
             if (not self.repConfigData):
                 print('Repository DB Configuration is empty')
@@ -162,7 +132,7 @@ class Infra(object, metaclass=Singleton):
         
         # load json schema data and resolve the reference if used, this will be needed to validate user data
         #print(self.configLoc)
-        configFile = self.util.buildFileWPath(self.configLoc,self.jsonSchemaConfigData['ConfigFile'])
+        configFile = self.util.buildFileWPath(self.configLoc, self.jsonSchemaConfigData['ConfigFile'])
         if not self.util.isFileExist(configFile):
             print('Json Schema Configuration file {file} is missing !!!'.format(file=os.path.join(self.configLoc,self.jsonSchemaConfigData['ConfigFile'])))
             sys.exit(-1)
@@ -194,40 +164,6 @@ class Infra(object, metaclass=Singleton):
 
             print('[Failed {err}]'.format(err=myErrorMessage))      
             sys.exit(-1)
-
-    def isValidBootStrapData(self):
-        if self.__bootStrapData:
-            return True
-        else:
-            return False
-
-    def isValidLogger(self):
-        if self.myModuleLogger:
-            return True
-        else:
-            return False
-
-    def getBootStrapFile(self):
-        
-        #print(self.env._Environment__bootStrapFileKey)
-        #print (self.env._Environment__initData)
-        return self.env._Environment__initData[self.env._Environment__bootStrapFileKey]
-        #mybootStrapFile = os.getEnv[self.Env._Environment__bootStrapKey]
-
-    def getAppName(self):
-        return os.Environ['APP_NAME']
-
-    def getMyOsPid(self):
-        # returns current OS pid
-        return os.getpid()
-
-    def getInfraLogger(self, infraArg):
-        if infraArg == 'Scheduler':
-            return self.SchedLogger
-        elif infraArg == 'Daemon':
-            return self.DaemonLogger
-        elif infraArg == 'Rest':
-            return self.RestLogger
 
     def isModuleInstalled(self,  argLib):
 
@@ -265,14 +201,6 @@ class Infra(object, metaclass=Singleton):
                 sys.exit(-1)
             else:
                 print(err)
-        '''
-        except Exception as err:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            myErrorMessage = repr(traceback.format_exception(exc_type, exc_value, exc_traceback))
-
-            print('[Failed {err}]'.format(err=myErrorMessage))      
-            sys.exit(-1)
-        '''
 
     def __validateDb(self,infraType):
         #print(self.repConfigData)
@@ -289,7 +217,7 @@ class Infra(object, metaclass=Singleton):
     def __loadDbJsonSchema(self):
         #self.dbSchema = self.jsonSchema.get('Main').get('db_schema').get(self.__bootStrapData['Main']['Modules']['DB']['REPOSITORY'])
         
-        self.dbSchema = self.jsonSchema.get('Main').get('db_schema').get(self.__bootStrapData['Main']['Modules']['DB']['REPOSITORY'][self.env.environment])
+        self.dbSchema = self.jsonSchemaConfigData.get('Main').get('db_schema').get(self.__bootStrapData['Main']['Modules']['DB']['REPOSITORY'][self.env.environment])
 
     def __getNewConnection(self):
         try:
@@ -317,24 +245,31 @@ class Infra(object, metaclass=Singleton):
 class RestInfra(Infra, metaclass=Singleton):
     def __init__(self):
         # calling super (Infra) class init method
+        #print('before calling infra init')
         super().__init__()
 
         print("Validating database............................".ljust(50),end='')
         super()._Infra__validateDb(self.globals.RestInfra)
 
         #self.db = self._Infra__getNewConnection()
+        myLoggingConfig = self.util.getACopy(self.loggingConfigData)
+        myLoggerInfo = self.globals.LoggerName[self.globals.RestInfra]
 
-        self.Logger = \
-            self.logging.buildLoggingInfra(\
-                self.loggingConfigData,\
-                self.globals.LoggerName[self.globals.RestInfra]['LogFile'],
-                self.globals.LoggerName[self.globals.RestInfra]['Name']
-                )
-        print("Loading factory method metadata")
+        if 'LogFile' in myLoggerInfo:
+            logFileWPath = os.path.join(self.env.appLogLoc, myLoggerInfo['LogFile'])
+            myLoggingConfig['handlers']['file']['filename'] = logFileWPath
+
+        logging.config.dictConfig(myLoggingConfig)
+        self.logger = logging.getLogger(myLoggerInfo['Name'])
+
+        print("Loading factory method metadata................".ljust(50),end='')
         # need to load factory metadata somewhere else. this is callingg mysql and ,mysql is callin infra going in loop
         self.factoryMetadata = self.loadFactoryMetadata()
+        print("[OK]")
         #print('Factory metadata ',self.factoryMetadata)
-        self.Logger.debug('this is test from Rest Infrastructure')
+        self.logger.debug('this is test from Rest Infrastructure')
+        print("\n")
+        print("Infrastructure is ready ")
 
     def loadFactoryMetadata(self):
         #from com.port8.core.mysqlutils import MysqlUtil
@@ -392,25 +327,36 @@ class SchedInfra(Infra, metaclass=Singleton):
 
         super(SchedInfra, self).__init__()
 
+        myLoggingConfig = self.util.getACopy(self.loggingConfigData)
+        myLoggerInfo = self.globals.LoggerName[self.globals.SchedInfra]
+
+        if 'LogFile' in myLoggerInfo:
+            logFileWPath = os.path.join(self.env.appLogLoc, myLoggerInfo['LogFile'])
+            myLoggingConfig['handlers']['file']['filename'] = logFileWPath
+
+        logging.config.dictConfig(myLoggingConfig)
+        self.logger = logging.getLogger(myLoggerInfo['Name'])
+
+        '''
         self.Logger = \
             self.logging.buildLoggingInfra(\
                 self.loggingConfigData,\
                 self.globals.LoggerName[self.globals.SchedInfra]['LogFile'],
                 self.globals.LoggerName[self.globals.SchedInfra]['Name']
                 )
+        '''
+        self.logger.info('instantiating scheduler, current os pid [{pid}'.format(pid=os.getpid()))
+        self.logger.info('current os is [{os}]'.format(os=os.uname()))
+        self.logger.info('Scheduler configuration .... \n')
+        self.logger.info('Config Data ---> {data}'.format(data=self.schedulerConfigData))
 
-        self.Logger.info('instantiating scheduler, current os pid [{pid}'.format(pid=os.getpid()))
-        self.Logger.info('current os is [{os}]'.format(os=os.uname()))
-        self.Logger.info('Scheduler configuration .... \n')
-        self.Logger.info('Config Data ---> {data}'.format(data=self.schedulerConfigData))
-
-        self.Logger.debug('this is test from Sched Infrastructure')
+        self.logger.debug('this is test from Sched Infrastructure')
 
         # populating json schema for scheduler
-        self.scheduleSchema = self.jsonSchema.get('Main').get('schedule_schema')
-        self.intervalSchema = self.jsonSchema.get('Main').get('interval_schema')
-        self.cronSchema = self.jsonSchema.get('Main').get('cron_schema')
-        self.processJobSchema = self.jsonSchema.get('Main').get('process_job_schema')
+        self.scheduleSchema = self.jsonSchemaConfigData.get('Main').get('schedule_schema')
+        self.intervalSchema = self.jsonSchemaConfigData.get('Main').get('interval_schema')
+        self.cronSchema = self.jsonSchemaConfigData.get('Main').get('cron_schema')
+        self.processJobSchema = self.jsonSchemaConfigData.get('Main').get('process_job_schema')
 
         # Load json schema
         self.db = self.getNewConnection()
@@ -422,16 +368,26 @@ class DaemonInfra(Infra, metaclass=Singleton):
         super(DaemonInfra, self).__init__()
 
         # creating logger for Daemon infrastructure
+        myLoggingConfig = self.util.getACopy(self.loggingConfigData)
+        myLoggerInfo = self.globals.LoggerName[self.globals.DaemonInfra]
+
+        if 'LogFile' in myLoggerInfo:
+            logFileWPath = os.path.join(self.env.appLogLoc, myLoggerInfo['LogFile'])
+            myLoggingConfig['handlers']['file']['filename'] = logFileWPath
+
+        logging.config.dictConfig(myLoggingConfig)
+        self.logger = logging.getLogger(myLoggerInfo['Name'])
+        '''
         self.Logger = \
             self.logging.buildLoggingInfra(\
                 self.loggingConfigData,\
                 self.globals.LoggerName[self.globals.DaemonInfra]['LogFile'],
                 self.globals.LoggerName[self.globals.DaemonInfra]['Name']
                 )
-
-        self.Logger.info('instantiating Daemon, current os pid [{pid}'.format(pid=os.getpid()))
-        self.Logger.info('current os is [{os}]'.format(os=os.uname()))
-        self.Logger.info('Daemon configuration .... \n')
+        '''
+        self.logger.info('instantiating Daemon, current os pid [{pid}'.format(pid=os.getpid()))
+        self.logger.info('current os is [{os}]'.format(os=os.uname()))
+        self.logger.info('Daemon configuration .... \n')
         self.DaemonLogger.info('Config Data ---> {data}'.format(data=self.daemonConfigData))
 
         self.Logger.debug('this is test from Daemon Infrastructure')
@@ -441,19 +397,29 @@ class DBInfra(Infra, metaclass=Singleton):
 
         super(DBInfra,self).__init__()
 
+        myLoggingConfig = self.util.getACopy(self.loggingConfigData)
+        myLoggerInfo = self.globals.LoggerName[self.globals.DaemonInfra]
+
+        if 'LogFile' in myLoggerInfo:
+            logFileWPath = os.path.join(self.env.appLogLoc, myLoggerInfo['LogFile'])
+            myLoggingConfig['handlers']['file']['filename'] = logFileWPath
+
+        logging.config.dictConfig(myLoggingConfig)
+        self.logger = logging.getLogger(myLoggerInfo['Name'])
+        '''
         self.Logger = \
             self.Logging.buildLoggingInfra(\
                 self.loggingConfigData,\
                 self.globals.LoggerName[self.globals.DBLoggerNameKey]['LogFile'],
                 self.globals.LoggerName[self.globals.DBLoggerNameKey]['Name']
                 )
+        '''
+        self.logger.info('instantiating DB, current os pid [{pid}'.format(pid=os.getpid()))
+        self.logger.info('current os is [{os}]'.format(os=os.uname()))
+        self.logger.info('DB configuration .... \n')
+        self.logger.info('Config Data ---> {data}'.format(data=self.dbConfigData))
 
-        self.Logger.info('instantiating DB, current os pid [{pid}'.format(pid=os.getpid()))
-        self.Logger.info('current os is [{os}]'.format(os=os.uname()))
-        self.Logger.info('DB configuration .... \n')
-        self.Logger.info('Config Data ---> {data}'.format(data=self.dbConfigData))
-
-        self.Logger.debug('this is test from Sched Infrastructure')
+        self.logger.debug('this is test from Sched Infrastructure')
 
 if __name__ == "__main__":
     #infra = Infra()

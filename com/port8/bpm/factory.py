@@ -1,4 +1,5 @@
 import importlib,logging, com.port8.core.error 
+
 from com.port8.core.utility import Utility
 from com.port8.core.singleton import Singleton
 from com.port8.core.globals import Global
@@ -17,7 +18,7 @@ class Factory(object, metaclass=Singleton):
         self.globals = Global()
         self.util = Utility()
         self.infra = RestInfra()
-        self.Logger = self.infra.Logger
+        self.logger = self.infra.logger
         #self.myClass = self.__class__.__name__
 
     def processRequest(self, argRequestDict):
@@ -29,7 +30,7 @@ class Factory(object, metaclass=Singleton):
         '''
         try:
 
-            self.Logger.debug("arg received [{args}]".format(args=argRequestDict))
+            self.logger.debug("arg received [{args}]".format(args=argRequestDict))
             myMainArgData = self.util.getACopy(argRequestDict)
 
             ''' Validating argumemt received '''
@@ -38,7 +39,7 @@ class Factory(object, metaclass=Singleton):
             if not (isValidRequest):
                 raise com.port8.core.error.InvalidArguments("Arg validation error {arg}".format(arg=myMainArgData))
             else:
-                self.Logger.debug('validated request, its a valid request >>> {req}'.format(req= str(argRequestDict)))
+                self.logger.debug('validated request, its a valid request >>> {req}'.format(req= str(argRequestDict)))
             #fi
 
             myPageId = myMainArgData['Page']
@@ -56,16 +57,16 @@ class Factory(object, metaclass=Singleton):
 
             #myLibrary, myClass, myMethod = bpsProcessVal
             if myBPMProcess:
-                self.Logger.debug("found, bpm process [{bpmproc}]".format(bpmproc=myBPMProcess))
+                self.logger.debug("found, bpm process [{bpmproc}]".format(bpmproc=myBPMProcess))
                 myResponse = self.__executeBPSPRocess(myBPMProcess['lib'], myBPMProcess['cls'], myBPMProcess['method'], myArguments) 
                 #myRquestStatus = self.util.getRequestStatus(self.globals.Success)            
             else:
-                self.Logger.debug("did not find mapped bpm process")
+                self.logger.debug("did not find mapped bpm process")
                 myRquestStatus = self.util.getRequestStatus(\
                     self.globals.UnSuccess,'Invalid Page [{page}] Action [{action}]'.format(page=myPageId, action=myActionId))
                 myResponse = self.util.buildResponseData(myRquestStatus,'Error')
 
-            self.Logger.debug('myResponse data >>> {response}'.format(response = myResponse))
+            self.logger.debug('myResponse data >>> {response}'.format(response = myResponse))
             return myResponse
 
         except Exception as err:
@@ -82,12 +83,12 @@ class Factory(object, metaclass=Singleton):
         '''
         try:
 
-            self.Logger.debug("arg received [{page},{action}]".format(page=argPageId, action=argActionId))
+            self.logger.debug("arg received [{page},{action}]".format(page=argPageId, action=argActionId))
 
             page = [page for page in self.infra.factoryMetadata if page['PAGE_ID'] == argPageId and page['PAGE_STATUS'] == 'ACTIVE'] 
             # if we found multiple page, will log the details
             if len(page) > 1:
-                self.Logger.ERROR('Expecting 1 entry per page, found {found}, Factory metadata >> {factoryData}'.
+                self.logger.ERROR('Expecting 1 entry per page, found {found}, Factory metadata >> {factoryData}'.
                     format(found = len(page), factoryData = self.infra.factoryData))
 
                 myResponse = self.util.buildResponse(\
@@ -98,7 +99,7 @@ class Factory(object, metaclass=Singleton):
             
             if len(page) == 0:
                 # we did not find page
-                self.Logger.debug('did not find requested page >>> {page}'.format(page=argPageId))
+                self.logger.debug('did not find requested page >>> {page}'.format(page=argPageId))
 
                 myResponse = self.util.buildResponse(\
                     self.globals.UnSuccess, 
@@ -106,7 +107,7 @@ class Factory(object, metaclass=Singleton):
                 return myResponse
 
             # we found one page, get the 1st item from list
-            self.Logger.debug('found matching page [{page}] in factory metdata'.format(page = argPageId))
+            self.logger.debug('found matching page [{page}] in factory metdata'.format(page = argPageId))
             page = page[0]
             pageActions = page['ACTIONS']
 
@@ -114,19 +115,19 @@ class Factory(object, metaclass=Singleton):
                 actionIndx = [indx for indx, val in enumerate(pageActions) if pageActions[indx]['ACTION_ID'] == argActionId ]
                  #print("found ??? >>>",actionIndx, pageActions)
                 if actionIndx:
-                    self.Logger.debug('found matching action [{action}] on page [{page}] in factory metdata'.format(action = argActionId, page = argPageId))
+                    self.logger.debug('found matching action [{action}] on page [{page}] in factory metdata'.format(action = argActionId, page = argPageId))
                     if isinstance(actionIndx, list):
                         actionIndx = actionIndx[0]
                     #myBPMCallJson = self.infra.factoryMetadata[argPageId][actionIndx][argActionId]
                     #print("found action >>>",actionIndx, pageActions, pageActions[actionIndx] )
                     myBPMCallJson = pageActions[actionIndx]['BPM_CALL_JSON']
-                    self.Logger.debug('BPM Json call found >>> {bpm}'.format(bpm = str(myBPMCallJson)))
+                    self.logger.debug('BPM Json call found >>> {bpm}'.format(bpm = str(myBPMCallJson)))
                     myResponse = self.util.buildResponse(\
                         self.globals.Success, self.globals.Success,myBPMCallJson)
                     return myResponse
                     #return myBPMCallJson
                 else:
-                    self.Logger.debug('action [{action}] not found for page [{page}] in factory metdata'.format(action = argActionId, page = argPageId))
+                    self.logger.debug('action [{action}] not found for page [{page}] in factory metdata'.format(action = argActionId, page = argPageId))
                     myResponse = self.util.buildResponse(\
                         self.globals.UnSuccess, 
                         'Missing requested action [{action}] for page >>> {page}'.format(action = argActionId, page=argPageId))
@@ -150,7 +151,7 @@ class Factory(object, metaclass=Singleton):
         '''  
         try:
 
-            self.Logger.debug("arg received [{lib},{cls},{method},{args}]".format(lib=argLib,cls=argCls,method=argMethod,args=arguments))
+            self.logger.debug("arg received [{lib},{cls},{method},{args}]".format(lib=argLib,cls=argCls,method=argMethod,args=arguments))
 
             myModule = importlib.import_module(argLib)
             myClass = getattr(myModule, argCls)
@@ -169,13 +170,13 @@ class Factory(object, metaclass=Singleton):
 
             # execute the method
             if arguments:
-                self.Logger.info("executing method with arguments >>>[{lib}.{cls}.{method} {args}]".format(lib=argLib,cls=argCls,method=argMethod,args=arguments))
+                self.logger.info("executing method with arguments >>>[{lib}.{cls}.{method} {args}]".format(lib=argLib,cls=argCls,method=argMethod,args=arguments))
                 myResults = myMethod(arguments)
             else:
-                self.Logger.info("executing method w/o arguments >>>[{lib}.{cls}.{method}]".format(lib=argLib,cls=argCls,method=argMethod))
+                self.logger.info("executing method w/o arguments >>>[{lib}.{cls}.{method}]".format(lib=argLib,cls=argCls,method=argMethod))
                 myResults = myMethod()
 
-            self.Logger.debug('results after execution >>> {data}'.format(data=str(myResults)))
+            self.logger.debug('results after execution >>> {data}'.format(data=str(myResults)))
             return (myResults)
 
         except Exception as err:
